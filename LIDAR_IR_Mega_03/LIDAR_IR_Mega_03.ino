@@ -67,7 +67,7 @@ void setup()
   I2c.timeOut(20); // init I2c bailout settings
 
 
-  Serial.println("READYSET!");
+  ////Serial.println("READYSET!");
   delay(1000);
 }
 //------------------------------------
@@ -76,7 +76,7 @@ void loop()
 {
 
   // (debug) do servo loops
-  for (int i = 1; i < 100; i++)
+  for (int i = 1; i < 100; i+=5)
   {
     //Serial.print("first loop... \t\t\t");
     //Serial.println(i);
@@ -86,7 +86,7 @@ void loop()
     //Serial.println(i);
     dataPollPush(i, i);
   }
-  for (int i = 100; i > 1; i--)
+  for (int i = 100; i > 1; i-=5)
   {
     theServo.writeMicroseconds(mapAngleServo(i));
     delay(10); // allow servo to chill
@@ -94,7 +94,7 @@ void loop()
   }
 
   // (debug) do dyna loops
-  for (int i = 1; i < 1023; i ++)
+  for (int i = 1; i < 1023; i +=12)
   {
     angleDynamixel = i;
     //transmit(); //enable trasmission
@@ -106,7 +106,7 @@ void loop()
     delay(10); // allow servo to chill
     dataPollPush(i, i);
   }
-  for (int i = 1023; i > 1; i --)
+  for (int i = 1023; i > 1; i -12)
   {
     angleDynamixel = i;
     //transmit(); //enable trasmission
@@ -123,8 +123,8 @@ void loop()
 void dataPollPush(int k, int i)
 {
   nackTotalTrack ++;
-  Serial.print("dataPollBegin\t");
-  Serial.println(nackTotalTrack);
+  //Serial.print("dataPollBegin\t");
+  //Serial.println(nackTotalTrack);
   
   String dataString;
 
@@ -140,13 +140,13 @@ void dataPollPush(int k, int i)
     ackNackTrack ++;
     if (ackNackTrack > 10)
     {
-      Serial.print("ackNackTrack over! \t");
-      Serial.println(ackNackTrack);
+      //Serial.print("ackNackTrack over! \t");
+      //Serial.println(ackNackTrack);
     }
   }
  
-  Serial.print("dataNack01\t");
-  Serial.println(nackTotalTrack);
+  //Serial.print("dataNack01\t");
+  //Serial.println(nackTotalTrack);
 
   byte distanceArray[2]; // array to store distance bytes from read function
 
@@ -162,13 +162,13 @@ void dataPollPush(int k, int i)
     ackNackTrack ++;
     if (ackNackTrack > 10)
     {
-      Serial.print("ackNackTrack over! \t");
-      Serial.println(ackNackTrack);
+      //Serial.print("ackNackTrack over! \t");
+      //Serial.println(ackNackTrack);
     }
   }
   
-  Serial.print("dataNack02\t");
-  Serial.println(nackTotalTrack);
+  //Serial.print("dataNack02\t");
+  //Serial.println(nackTotalTrack);
 
   int distance = (distanceArray[0] << 8) + distanceArray[1];  // Shift high byte [0] 8 to the left and add low byte [1] to create 16-bit int
 
@@ -179,7 +179,7 @@ void dataPollPush(int k, int i)
   dataString += String(i);
   dataString += ",";
   dataString += String(theMlx.readObjectTempC()); // this is where you hang
-  delay(100);
+  delay(200);
   
   Serial.println(dataString);
 }
@@ -214,7 +214,7 @@ void recieve()
 void serialEvent3()
 {
   temp = Serial3.read();
-  Serial.print(temp, HEX); // prints incoming return packet bit
+  //Serial.print(temp, HEX); // prints incoming return packet bit
 }
 
 /*---------------------------------------
