@@ -57,76 +57,101 @@ int nackTotalTrack = 0;
 void setup()
 {
   theServo.attach(10);
-  theServo.writeMicroseconds(mapAngleServo(0));
+  
   Serial3.begin(1000000); // Dynamixel Communication Speed
   Serial.begin(9600); // Communication speed Arduino/PC
   transmit(); // setup dynamixel strangeness to send;
   theMlx.begin();
+  
+  goDynamixel(0);
+  theServo.writeMicroseconds(mapAngleServo(0));
 
   I2c.begin();
   delay(100);
   I2c.timeOut(50); // init I2c bailout settings (not relevant to mlx)
 
   ////Serial.println("READYSET!");
-  delay(1000);
+  delay(1000); // wait for servos to settle
 }
 //------------------------------------
 
 int angle = 5;
+int sweepTrack = 0;
 
 void loop()
 {
-  // ascent thru
-  for (int i = 0; i < 100; i += angle*2)
+  // loop iterating
+  sweepTrack ++;
+  bool theSweep = true; // 1 or 0, mlx or distance
+  
+  // ready loop
+  for (int i = 0; i <= 100; i += angle * 2)
   {
     theServo.writeMicroseconds(mapAngleServo(i));
-    delay(100);
-    for (int j = 0; j < 300; j += angle)
+    delay(50);
+    for (int j = 0; j <= 300; j += angle)
     {
       goDynamixel(j);
       delay(10); // allow servos to chill, hit goals, retire, enjoy grandchildren
-      dataPollPush(i, j);
+      dataPollPush(i, j, theSweep);
     }
-    theServo.writeMicroseconds(mapAngleServo(i+angle));
-    delay(100);
-    for (int j = 300; j > 0; j -= angle)
+    theServo.writeMicroseconds(mapAngleServo(i + angle));
+    delay(50);
+    for (int j = 300; j >= 0; j -= angle)
     {
       goDynamixel(j);
       delay(10);
-      dataPollPush(i,j);
+      dataPollPush(i + angle, j, theSweep);
     }
   }
   
+  if(theSweep)
+  {
+    theSweep = false;
+  }
+  else if(!theSweep) // I am sure there is a better way
+  {
+    theSweep = true;
+  }
+  
   // descent thru
-  for (int i = 100; i > 0; i -= angle*2)
+  for (int i = 100; i >= 0; i -= angle * 2)
   {
     theServo.writeMicroseconds(mapAngleServo(i));
     delay(100);
-    for (int j = 0; j < 300; j += angle)
+    for (int j = 0; j <= 300; j += angle)
     {
       goDynamixel(j);
       delay(10); // allow servos to chill, hit goals, retire, enjoy grandchildren
-      dataPollPush(i, j);
+      dataPollPush(i, j, theSweep);
     }
-    theServo.writeMicroseconds(mapAngleServo(i-angle));
+    theServo.writeMicroseconds(mapAngleServo(i - angle));
     delay(100);
-    for (int j = 300; j > 0; j -= angle)
+    for (int j = 300; j >= 0; j -= angle)
     {
       goDynamixel(j);
       delay(10);
-      dataPollPush(i,j);
+      dataPollPush(i - angle, j, theSweep);
     }
   }
 
 }
 
+void dataPollPush(int i, int j, bool sweepBool)
+{
+  if (sweepBool) // should be on 1st swing
+  {
+    dataMLX(i, j);
+  }
+  else // and 2nd swing
+  {
+    dataDistance(i, j);
+  }
+}
 
-void dataPollPush(int k, int i)
+void dataDistance(int k, int i)
 {
   nackTotalTrack ++;
-  //Serial.print("dataPollBegin\t");
-  //Serial.println(nackTotalTrack);
-
   String dataString;
 
   // Write 0x04 to register 0x00
@@ -136,7 +161,7 @@ void dataPollPush(int k, int i)
 
   while (nackack != 0) { // While NACK keep going (i.e. continue polling until sucess message (ACK) is received )
     nackack = I2c.write(LIDARLite_ADDRESS, RegisterMeasure, MeasureValue); // Write 0x04 to 0x00
-    delay(100); // Wait 1 ms to prevent overpolling
+    delay(40); // Wait 1 ms to prevent overpolling
 
     ackNackTrack ++;
     if (ackNackTrack > 40)
@@ -158,7 +183,7 @@ void dataPollPush(int k, int i)
   while (nackack != 0)
   { // While NACK keep going (i.e. continue polling until sucess message (ACK) is received )
     nackack = I2c.read(LIDARLite_ADDRESS, RegisterHighLowB, 2, distanceArray); // Read 2 Bytes from LIDAR-Lite Address and store in array
-    delay(100); // Wait 1 ms to prevent overpolling
+    delay(40); // Wait 1 ms to prevent overpolling
 
     ackNackTrack ++;
     if (ackNackTrack > 40)
@@ -173,16 +198,34 @@ void dataPollPush(int k, int i)
 
   int distance = (distanceArray[0] << 8) + distanceArray[1];  // Shift high byte [0] 8 to the left and add low byte [1] to create 16-bit int
 
+  dataString += String(1);
+  dataString += ",";
   dataString += String(distance);
   dataString += ",";
   dataString += String(k);
   dataString += ",";
   dataString += String(i);
-  dataString += ",";
-  dataString += String(theMlx.readObjectTempC()); // this is where you hang
-  delay(150);
+  //dataString += ",";
+  //dataString += String(theMlx.readObjectTempC()); // this is where you hang
+  delay(10);
 
   Serial.println(dataString);
+}
+
+void dataMLX(int k, int i)
+{
+  String dataString;
+  
+  dataString += String(0);
+  dataString += ",";
+  dataString += String(theMlx.readObjectTempC()); // this is where you hang
+  dataString += ",";
+  dataString += String(k);
+  dataString += ",";
+  dataString += String(i);
+  
+  Serial.println(dataString);
+  delay(100);
 }
 
 /// SERVO FUNCTIONS
