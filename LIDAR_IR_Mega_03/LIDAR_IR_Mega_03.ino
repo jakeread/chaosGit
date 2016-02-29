@@ -36,7 +36,7 @@ to servo and Serial to write to pc for purpose of recieving status packets
 
 #define    LIDARLite_ADDRESS   0x62          // Default I2C Address of LIDAR-Lite.
 #define    RegisterMeasure     0x00          // Register to write to initiate ranging.
-#define    MeasureValue        0x04          // Value to initiate ranging.
+#define    MeasureValue        0x03          // Value to initiate ranging.
 #define    RegisterHighLowB    0x8f          // Register to get both High and Low bytes in 1 call.
 
 // objects
@@ -57,6 +57,7 @@ int nackTotalTrack = 0;
 void setup()
 {
   theServo.attach(10);
+  theServo.writeMicroseconds(mapAngleServo(0));
   Serial3.begin(1000000); // Dynamixel Communication Speed
   Serial.begin(9600); // Communication speed Arduino/PC
   transmit(); // setup dynamixel strangeness to send;
@@ -64,87 +65,87 @@ void setup()
 
   I2c.begin();
   delay(100);
-  I2c.timeOut(20); // init I2c bailout settings
-
+  I2c.timeOut(50); // init I2c bailout settings (not relevant to mlx)
 
   ////Serial.println("READYSET!");
   delay(1000);
 }
 //------------------------------------
 
+int angle = 5;
+
 void loop()
 {
-
-  // (debug) do servo loops
-  for (int i = 1; i < 100; i+=5)
-  {
-    //Serial.print("first loop... \t\t\t");
-    //Serial.println(i);
-    theServo.writeMicroseconds(mapAngleServo(i));
-    delay(10); // allow servo to chill
-    //Serial.print("after the microSeconds \t");
-    //Serial.println(i);
-    dataPollPush(i, i);
-  }
-  for (int i = 100; i > 1; i-=5)
+  // ascent thru
+  for (int i = 0; i < 100; i += angle*2)
   {
     theServo.writeMicroseconds(mapAngleServo(i));
-    delay(10); // allow servo to chill
-    dataPollPush(i, i);
+    delay(100);
+    for (int j = 0; j < 300; j += angle)
+    {
+      goDynamixel(j);
+      delay(10); // allow servos to chill, hit goals, retire, enjoy grandchildren
+      dataPollPush(i, j);
+    }
+    theServo.writeMicroseconds(mapAngleServo(i+angle));
+    delay(100);
+    for (int j = 300; j > 0; j -= angle)
+    {
+      goDynamixel(j);
+      delay(10);
+      dataPollPush(i,j);
+    }
+  }
+  
+  // descent thru
+  for (int i = 100; i > 0; i -= angle*2)
+  {
+    theServo.writeMicroseconds(mapAngleServo(i));
+    delay(100);
+    for (int j = 0; j < 300; j += angle)
+    {
+      goDynamixel(j);
+      delay(10); // allow servos to chill, hit goals, retire, enjoy grandchildren
+      dataPollPush(i, j);
+    }
+    theServo.writeMicroseconds(mapAngleServo(i-angle));
+    delay(100);
+    for (int j = 300; j > 0; j -= angle)
+    {
+      goDynamixel(j);
+      delay(10);
+      dataPollPush(i,j);
+    }
   }
 
-  // (debug) do dyna loops
-  for (int i = 1; i < 1023; i +=12)
-  {
-    angleDynamixel = i;
-    //transmit(); //enable trasmission
-    // Reg_Write Instructions
-    //------------------------------------
-    reg_write_2_byte(1, goal_position, angleDynamixel); // put location value into buffer
-    Action(0xFE); //execute buffer
-    //recieve(); //enable recieving
-    delay(10); // allow servo to chill
-    dataPollPush(i, i);
-  }
-  for (int i = 1023; i > 1; i -12)
-  {
-    angleDynamixel = i;
-    //transmit(); //enable trasmission
-    // Reg_Write Instructions
-    //------------------------------------
-    reg_write_2_byte(1, goal_position, angleDynamixel); // put location value into buffer
-    Action(0xFE); //execute buffer
-    //recieve(); //enable recieving
-    delay(10); // allow servo to chill
-    dataPollPush(i, i);
-  }
 }
+
 
 void dataPollPush(int k, int i)
 {
   nackTotalTrack ++;
   //Serial.print("dataPollBegin\t");
   //Serial.println(nackTotalTrack);
-  
+
   String dataString;
 
   // Write 0x04 to register 0x00
 
   uint8_t nackack = 100; // Setup variable to hold ACK/NACK resopnses
   ackNackTrack = 0;
-  
+
   while (nackack != 0) { // While NACK keep going (i.e. continue polling until sucess message (ACK) is received )
     nackack = I2c.write(LIDARLite_ADDRESS, RegisterMeasure, MeasureValue); // Write 0x04 to 0x00
     delay(100); // Wait 1 ms to prevent overpolling
 
     ackNackTrack ++;
-    if (ackNackTrack > 10)
+    if (ackNackTrack > 40)
     {
-      //Serial.print("ackNackTrack over! \t");
+      Serial.print("ackNackTrack over! \t");
       //Serial.println(ackNackTrack);
     }
   }
- 
+
   //Serial.print("dataNack01\t");
   //Serial.println(nackTotalTrack);
 
@@ -160,13 +161,13 @@ void dataPollPush(int k, int i)
     delay(100); // Wait 1 ms to prevent overpolling
 
     ackNackTrack ++;
-    if (ackNackTrack > 10)
+    if (ackNackTrack > 40)
     {
-      //Serial.print("ackNackTrack over! \t");
+      Serial.print("ackNackTrack over! \t");
       //Serial.println(ackNackTrack);
     }
   }
-  
+
   //Serial.print("dataNack02\t");
   //Serial.println(nackTotalTrack);
 
@@ -179,20 +180,30 @@ void dataPollPush(int k, int i)
   dataString += String(i);
   dataString += ",";
   dataString += String(theMlx.readObjectTempC()); // this is where you hang
-  delay(200);
-  
+  delay(150);
+
   Serial.println(dataString);
 }
+
+/// SERVO FUNCTIONS
 
 int mapAngleServo(float angle)
 {
   return round(map(angle, 0, 100, 800, 2200)); // mapping between max angles, 0->100, to max pwm values
 }
 
-int mapAngleDyna(float angle)
+int mapAngleDynamixel(float angle)
 {
   return round(map(angle, 0, 300, 1, 1023)); // watch the round function, not arduino documented but is C std
 }
+
+void goDynamixel(float angleDynamixel)
+{
+  reg_write_2_byte(1, goal_position, mapAngleDynamixel(angleDynamixel)); // put location value into buffer
+  Action(0xFE); //execute buffer
+}
+
+/// DYNAMIXEL COMMUNICATION
 
 void transmit()
 {
