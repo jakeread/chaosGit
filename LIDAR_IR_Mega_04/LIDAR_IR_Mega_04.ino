@@ -33,6 +33,8 @@ to servo and Serial to write to pc for purpose of recieving status packets
 #include <I2C.h>
 #include <Wire.h>
 #include <Adafruit_MLX90614.h>
+#include <math.h>
+
 
 #define    LIDARLite_ADDRESS   0x62          // Default I2C Address of LIDAR-Lite.
 #define    RegisterMeasure     0x00          // Register to write to initiate ranging.
@@ -75,7 +77,7 @@ void setup()
 }
 //------------------------------------
 
-int angle = 5;
+int fov = 5; // FOV
 int sweepTrack = 0;
 
 void loop()
@@ -84,57 +86,39 @@ void loop()
   sweepTrack ++;
   bool theSweep = true; // 1 or 0, mlx or distance
   
-  // ready loop
-  for (int i = 0; i <= 100; i += angle * 2)
+  for (int y = 30; y < 330; y += fov)
   {
-    theServo.writeMicroseconds(mapAngleServo(i));
-    delay(50);
-    for (int j = 0; j <= 300; j += angle)
-    {
-      goDynamixel(j);
-      delay(10); // allow servos to chill, hit goals, retire, enjoy grandchildren
-      dataPollPush(i, j, theSweep);
+    goDynamixel(y-30); // go to 'y' angle: dynamixel
+    
+    float add = 0;
+    float x = 0;
+    while(x < 100){ // while x (rotation) is less than 100
+      if (add > 3) {
+        delay(300); // have to wait for servo to hit
+      }
+      goServo(x);
+      add = abs(tan(radians(fov/2))/(M_PI*sin(radians(y))))*360;
+      x = x+add;
+      Serial.print("add \t");
+      Serial.print(add);
+      Serial.print(" \t x:");
+      Serial.print(x);
+      Serial.print(" \t y:"); 
+      Serial.println(y);
     }
-    theServo.writeMicroseconds(mapAngleServo(i + angle));
-    delay(50);
-    for (int j = 300; j >= 0; j -= angle)
-    {
-      goDynamixel(j);
-      delay(10);
-      dataPollPush(i + angle, j, theSweep);
-    }
+    Serial.println("finished 300 loop");
   }
   
+  /*
   if(theSweep)
   {
     theSweep = false;
   }
-  else if(!theSweep) // I am sure there is a better way
+  else if(!theSweep) // I am sure there is a better way theSweep != theSweep ?!
   {
     theSweep = true;
   }
-  
-  // descent thru
-  for (int i = 100; i >= 0; i -= angle * 2)
-  {
-    theServo.writeMicroseconds(mapAngleServo(i));
-    delay(100);
-    for (int j = 0; j <= 300; j += angle)
-    {
-      goDynamixel(j);
-      delay(10); // allow servos to chill, hit goals, retire, enjoy grandchildren
-      dataPollPush(i, j, theSweep);
-    }
-    theServo.writeMicroseconds(mapAngleServo(i - angle));
-    delay(100);
-    for (int j = 300; j >= 0; j -= angle)
-    {
-      goDynamixel(j);
-      delay(10);
-      dataPollPush(i - angle, j, theSweep);
-    }
-  }
-
+*/
 }
 
 void dataPollPush(int i, int j, bool sweepBool)
@@ -244,6 +228,11 @@ void goDynamixel(float angleDynamixel)
 {
   reg_write_2_byte(1, goal_position, mapAngleDynamixel(angleDynamixel)); // put location value into buffer
   Action(0xFE); //execute buffer
+}
+
+void goServo(float angleServo)
+{
+  theServo.writeMicroseconds(mapAngleServo(angleServo));
 }
 
 /// DYNAMIXEL COMMUNICATION
