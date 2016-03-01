@@ -82,7 +82,7 @@ void loop()
 {
   // loop iterating
   sweepTrack ++;
-  bool theSweep = false; // 1 or 0, mlx or distance
+  bool theSweep = true; // 1 or 0, mlx or distance
   
   // ready loop
   for (int i = 0; i <= 100; i += angle * 2)
@@ -198,15 +198,13 @@ void dataDistance(int k, int i)
 
   int distance = (distanceArray[0] << 8) + distanceArray[1];  // Shift high byte [0] 8 to the left and add low byte [1] to create 16-bit int
 
-  dataString += String(1);
-  dataString += ",";
-  dataString += String(distance);
-  dataString += ",";
   dataString += String(k);
   dataString += ",";
   dataString += String(i);
-  //dataString += ",";
-  //dataString += String(theMlx.readObjectTempC()); // this is where you hang
+  dataString += ",";
+  dataString += String(distance);
+  dataString += ",";
+  dataString += "temp";
   delay(10);
 
   Serial.println(dataString);
@@ -216,15 +214,17 @@ void dataMLX(int k, int i)
 {
   String dataString;
   
-  dataString += String(0);
-  dataString += ",";
-  dataString += String(theMlx.readObjectTempC()); // this is where you hang
-  dataString += ",";
   dataString += String(k);
   dataString += ",";
   dataString += String(i);
+  dataString += ",";
+  dataString += "dist";
+  dataString += ",";
+  dataString += String(theMlx.readObjectTempC()); // this is where you hang
+
   
   Serial.println(dataString);
+  //Serial.println(theMlx.readObjectTempC());
   delay(150);
 }
 
