@@ -47,6 +47,7 @@ myPort.on('error', function() {
 myPort.on('data', function(data) {
 	// whenever a new data event, as per parser above, when newline and carriage return
 	console.log("from arduino: " + data); // ship data to console
+	sendToWeb(data);
 	// now make decisions and do stuff based on data
 });
 
@@ -55,26 +56,27 @@ myPort.on('data', function(data) {
 wss.on('connection', handleConnection);
 
 function handleConnection(client) {
-	console.long("New Connection on wss");
+	console.log("wss: new connection");
 	connections.push(client); // add client to connections array
 	
 	client.on('message', parseClientMessage); // when we get a message, parse & do stuff
 	
 	client.on('close', function() {
-		console.log("Connection closed on wss");
+		console.log("wss: connection closed");
 		var position = connections.indexOf(client); // index of connection in array of connections
 		connections.splice(position, 1); // remove from array
 	});
 }
-	
-function parseClientMessage(data) {
-	console.log("Received from wss: " + data);
+
+function parseClientMessage(data) { // WILL SEND TO SERIAL
+	console.log("wss: data in: " + data);
 	//myPort.write(data); // send to arduino over serial
 	// only if serial is open? can check? will throw error automatically?
 }
 	
-function sendData(data){
+function sendData(data){ //
 	for (connection in connections){ // plurals!
+		console.log("sent to connection #: " + connection + " this data: " + data);
 		connections[connection].send(data);
 	}
 }
@@ -82,6 +84,6 @@ function sendData(data){
 function sendToWeb(data){
 	console.log("sentToWeb: "+data);
 	if (connections.length > 0) {
-		broadcast(data);
+		sendData(data);
 	}
 }
