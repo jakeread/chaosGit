@@ -71,7 +71,7 @@ void flash(int pin) {
 
 void parseCommand() {
   char thisChar;
-  for (uint8_t i = 0; i < command.length(); i++) {
+  for (uint8_t i = 0; i < command.length() + 1; i++) {
     thisChar = command.charAt(i);
     if (isUpperCase(thisChar)) {
       commandCode = thisChar;
@@ -96,7 +96,6 @@ void parseVal() {
 }
 
 void commandDispatch() {
-
   if (commandComplete) { // do on command complete
     Serial.print("Line Received: ");
     Serial.println(command);
