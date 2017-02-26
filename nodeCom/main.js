@@ -53,7 +53,7 @@ myPort.on('error', function() {
 myPort.on('data', parseTeensyOutput); // on data event, do this function
 
 function parseTeensyOutput(data) { // ----------------- SERIAL IN LANDING
-	if(debug){
+	if(true){
 		console.log("teensy output: " + data); // ship data to console
 	}
 	publish(data);
