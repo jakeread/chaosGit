@@ -1,51 +1,64 @@
-var text;
-var y = 0;
 var socket = new WebSocket("ws://localhost:8081");
+
+var stat;
+var lines = new Array;
+var dataIn;
+
+var lineIn;
 
 function setup() {
 	// createCanvas must be the first statement
-	canvas = createCanvas(710, 400, WEBGL);  
+	var canvas = createCanvas(690, 600, WEBGL);  
+	canvas.position(10,10);
 	//stroke(0);     // Set line drawing color to white
 	frameRate(24);
-	canvas.position(200,5);
 	
+	// SOCKET
 	socket.onopen = openSocket;
-	socket.onmessage = showData;
+	socket.onclose = closeSocket;
+	socket.onmessage = newData;
 	
-	text = createDiv("Data in: ");
-	text.position(5, 5);
+	stat = createDiv("Awaiting Status... ");
+	stat.position(710, 595);
+
+	dataIn = createDiv("data placeholder");
+	dataIn.position(710, 50);
+
+	// INPUT
+	lineIn = createInput();
+	lineIn.position(710,10);
 }
 
 function draw() {
-	background(200);   // Set the background to black
-	
-	var radius = width * 1.5;
+	background(245);   // Set the background to black
 	
 	orbitControl();
 	
-	normalMaterial();
 	translate(0, 0, -600);
-	for(var i = 0; i <= 12; i++){
-		for(var j = 0; j <= 12; j++){
-			push();
-			var a = j/12 * PI;
-			var b = i/12 * PI;
-			translate(sin(2 * a) * radius * sin(b), cos(b) * radius / 2 , cos(2 * a) * radius * sin(b));    
-			if(j%2 === 0){
-				cone(30, 30);
-			}else{
-				box(30, 30, 30);
-			}
-			pop();
-		}
-	}
 }
 
 function openSocket() {
 	socket.send("p5: hello websocket");
-	text.html("Socket open");
+	stat.html("Socket Open");
 }
 
-function showData(result) {
-	text.html("Data reading: " + result.data);
+function closeSocket() {
+	stat.html("Socket Closed")
+}
+
+function newData(result) {
+	if(result.data[0] == "M"){
+		stat.html("DATA IN");
+	}
+	append(lines, result.data);
+	for(line in lines){
+		dataIn.html(lines[line]);
+	}
+}
+
+function keyPressed(){
+	if(keyCode == ENTER || keyCode == RETURN){
+		socket.send(lineIn.value());
+		lineIn.value("");
+	}
 }
