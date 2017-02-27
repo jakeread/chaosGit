@@ -56,10 +56,9 @@ function parseTeensyOutput(data) { // ----------------- SERIAL IN LANDING
 	if(true){
 		console.log("teensy output: " + data); // ship data to console
 	}
-	if(data[0] == "C"){
+	if(data[0] == "C" || data[0] == "M"){ // kritical for scans
 		confCode = data;
-	} else if(data[0] == "M"){
-		confCode = "M";
+		checkConfCode();
 	}
 	publish(data);
 };
@@ -118,7 +117,8 @@ function parseUserInput(data){ // -- commandLine and wss come thru here
 			writeToPort("H");
 			break;
 		case "scan":
-			doScan();
+			scan.active = true;
+			startScan();
 			break
 		default:
 			writeToPort(data);
@@ -133,25 +133,60 @@ function writeToPort(data){
 
 //------------------------ SCANNING
 
+var scan = {
+	"a": 0,
+	"b": 0,
+	"aInterval": 5,
+	"bInterval": 5,
+	"aEnd": 80,
+	"bEnd": 120,
+	"aStart": -80,
+	"bStart": -120,
+	"currentCommand": "",
+	"active": false
+}
+
+function startScan(){
+	scan.a = scan.aStart-scan.aInterval;
+	scan.b = scan.bStart-scan.bInterval;
+	scan.currentCommand = "B"+scan.b;
+	writeToPort(scan.currentCommand);
+}
+
 function doScan(){
-	for(a = -10; a <= 10; a += 5){
-		var command = "A" + a;
-		console.log(command);
-		writeToPort(command);
-		while(!confCode.includes(command)){
-			// DO ASYNC WAIT
+	console.log("doing scan");
+	if (scan.b < scan.bEnd){
+		scan.b = scan.b+scan.bInterval;
+		scan.currentCommand = "B"+scan.b;
+		writeToPort(scan.currentCommand);
+	} else {
+		scan.b = scan.bStart;
+		scan.currentCommand = "B"+scan.b;
+		writeToPort(scan.currentCommand);
+	}
+	if (scan.b == scan.bStart){
+		scan.a = scan.a+scan.aInterval;
+		scan.currentCommand = "A"+scan.a;
+		writeToPort(scan.currentCommand);
+	} else if (scan.a > scan.aEnd){
+		writeToPort("B0");
+		setTimeout(writeToPort, 1000, "A0");
+		scan.active = false;
+		console.log("SCAN FINISHED");
+	}
+}
+
+function checkConfCode(){
+	if (confCode.includes("M")){
+		//console.log("includes M");
+		if(scan.active){
+			doScan();
 		}
-		for(b = -20; b<=20; b+= 5){
-			var command = "B" + b;
-			console.log(command);
-			writeToPort(command);
-			while(!confCode.includes(command)){
-				// DO ASYNC WAIT
-			}
+	} else if(confCode.includes(scan.currentCommand)){
+		//console.log("includes currentCommand")
+		if(scan.active){
 			writeToPort("M");
-			while(!confCode.includes("M")){
-				// DO ASYNC WAIT
-			}
 		}
 	}
+	confCode = "";
 }

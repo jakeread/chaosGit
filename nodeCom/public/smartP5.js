@@ -12,7 +12,12 @@ function setup() {
 	var canvas = createCanvas(690, 600, WEBGL);  
 	canvas.position(10,10);
 	frameRate(24);
-	
+
+	// Camera
+	var fov = 15 / 180 * PI;
+	var cameraZ = 180;
+	perspective(fov, width/height, cameraZ * 0.01, cameraZ * 100);
+
 	// SOCKET
 	socket.onopen = openSocket;
 	socket.onclose = closeSocket;
@@ -33,10 +38,9 @@ function setup() {
 
 function draw() {
 	background(245);   // Set the background to black
-	
+
 	orbitControl();
-	
-	translate(0, 0, -20); // z sitcks 'out of the page'
+	translate(0,10,-700);
 
 	if (dataPoints.length > 0){
 		for(instance in dataPoints){
@@ -47,9 +51,9 @@ function draw() {
 				"<br> position Y: " + thePoint.pos.y +
 				"<br> position Z: " + thePoint.pos.z);
 			push();
-			translate(thePoint.pos.x, thePoint.pos.y, thePoint.pos.z);
+			translate(thePoint.pos.x, -thePoint.pos.z, thePoint.pos.y); // in proc, z goes into screen
 			fill(thePoint.tc.r,thePoint.tc.g,thePoint.tc.b);
-			sphere(2, 6, 6); //radius, numSegs, numSegs
+			sphere(1, 6, 6); //radius, numSegs, numSegs
 			pop();
 		} // add points in this loop, check for dead / outdated points, or fade based on time
 	}
@@ -92,9 +96,9 @@ function dataPoint(data){
 	var z = cos(radians(b));
 
 	var pos = {
-		"x": -distance*x,
-		"y": -distance*y,
-		"z": distance*z
+		"x": -distance*x*100,
+		"y": -distance*y*100,
+		"z": distance*z*100
 	};
 
 	var tempColour = mapTemp(radiant);

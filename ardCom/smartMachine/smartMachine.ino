@@ -203,10 +203,10 @@ void commandDispatch() {
 void initSteppers() {
   pinMode(stepEnA, OUTPUT);
   pinMode(stepEnB, OUTPUT);
-  stepperA.setMaxSpeed(4000);
-  stepperA.setAcceleration(10000);
-  stepperB.setMaxSpeed(7000);
-  stepperB.setAcceleration(20000);
+  stepperA.setMaxSpeed(2000);
+  stepperA.setAcceleration(5000);
+  stepperB.setMaxSpeed(2000);
+  stepperB.setAcceleration(5000);
   enableSteppers();
   pinMode(stepLimitA, INPUT);
   pinMode(stepLimitB, INPUT);
