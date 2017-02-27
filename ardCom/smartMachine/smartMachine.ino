@@ -128,13 +128,13 @@ void commandDispatch() {
 
     case 'A': // move A motor to pos
       goToDegA(commandVal);
-      Serial.print("A");
+      Serial.print("CA");
       Serial.println(commandVal);
       break;
 
     case 'B': //
       goToDegB(commandVal);
-      Serial.print("B");
+      Serial.print("CB");
       Serial.println(commandVal);
       break;
       
@@ -152,42 +152,43 @@ void commandDispatch() {
 
     case 'H':
       homeSteppers();
-      Serial.println("H");
+      Serial.println("Homed");
       break;
 
     case 'C':
       disableSteppers();
-      Serial.println("C");
+      Serial.println("Steppers Disabled");
       break;
 
     case 'E':
       enableSteppers();
-      Serial.println("E");
+      Serial.println("Steppers Enabled");
       break;
 
     case 'L':
       flash(lzr);
-      Serial.println("L");
+      Serial.println("Laserbeams On");
       break;
 
     case 'R':
       delay(100);
-      Serial.print("R");
+      Serial.print("Mylexis: ");
       Serial.println(mlx.readObjectTempC());
       break;
 
     case 'T':
-      Serial.print("T");
+      Serial.print("Ambient: ");
       Serial.println(mlx.readAmbientTempC());
       break;
 
     case 'D':
-      Serial.print("D");
+      Serial.print("Distance: ");
       Serial.print(measureDistance());
       break;
 
     default:
-      Serial.println("NOCODE");
+      Serial.print("Not A Code: ");
+      Serial.println(command);
   }
 
   command = "";

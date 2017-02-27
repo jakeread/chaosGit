@@ -11,6 +11,9 @@ var SERVER_PORT = 8081;
 var wss = new WebSocketServer({port: SERVER_PORT});
 var connections = new Array; // handles the multiple connections
 
+var confCode = "";
+var confMeasure = "";
+
 //for terminal inputs
 const readline = require('readline');
 
@@ -23,9 +26,6 @@ const rl = readline.createInterface({
 rl.on('line', parseLineIn);
 
 function parseLineIn(data){
-	if(debug){
-		console.log("readline: data in: " + data);
-	}
 	parseUserInput(data);
 }
 
@@ -55,6 +55,11 @@ myPort.on('data', parseTeensyOutput); // on data event, do this function
 function parseTeensyOutput(data) { // ----------------- SERIAL IN LANDING
 	if(true){
 		console.log("teensy output: " + data); // ship data to console
+	}
+	if(data[0] == "C"){
+		confCode = data;
+	} else if(data[0] == "M"){
+		confCode = "M";
 	}
 	publish(data);
 };
@@ -103,16 +108,50 @@ function publish(data){
 
 //------------------------ Data Streams
 
-function parseUserInput(data){
+function parseUserInput(data){ // -- commandLine and wss come thru here
 	console.log('parseUserInput: ' + data);
-	if(data == "measure"){
-		writeToPort("M");
-	} else if (data == "home"){
-		writeToPort("H");
+	switch(data){
+		case "measure":
+			writeToPort("M");
+			break;
+		case "home":
+			writeToPort("H");
+			break;
+		case "scan":
+			doScan();
+			break
+		default:
+			writeToPort(data);
 	}
 }
+
 
 function writeToPort(data){
 	console.log("writing to port: " + data);
 	myPort.write(data + '\n');
+}
+
+//------------------------ SCANNING
+
+function doScan(){
+	for(a = -10; a <= 10; a += 5){
+		var command = "A" + a;
+		console.log(command);
+		writeToPort(command);
+		while(!confCode.includes(command)){
+			// DO ASYNC WAIT
+		}
+		for(b = -20; b<=20; b+= 5){
+			var command = "B" + b;
+			console.log(command);
+			writeToPort(command);
+			while(!confCode.includes(command)){
+				// DO ASYNC WAIT
+			}
+			writeToPort("M");
+			while(!confCode.includes("M")){
+				// DO ASYNC WAIT
+			}
+		}
+	}
 }
