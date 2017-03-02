@@ -136,11 +136,11 @@ function writeToPort(data){
 var scan = {
 	"a": 0,
 	"b": 0,
-	"aInterval": 5,
-	"bInterval": 5,
-	"aEnd": 80,
+	"aInterval": 3,
+	"bInterval": 3,
+	"aEnd": 90,
 	"bEnd": 120,
-	"aStart": -80,
+	"aStart": -90,
 	"bStart": -120,
 	"currentCommand": "",
 	"active": false

@@ -127,7 +127,7 @@ void commandDispatch() {
       break;
 
     case 'A': // move A motor to pos
-      goToDegA(commandVal);
+      goToDegA(-commandVal);
       Serial.print("CA");
       Serial.println(commandVal);
       break;
@@ -205,8 +205,8 @@ void initSteppers() {
   pinMode(stepEnB, OUTPUT);
   stepperA.setMaxSpeed(2000);
   stepperA.setAcceleration(5000);
-  stepperB.setMaxSpeed(2000);
-  stepperB.setAcceleration(5000);
+  stepperB.setMaxSpeed(1500);
+  stepperB.setAcceleration(8000);
   enableSteppers();
   pinMode(stepLimitA, INPUT);
   pinMode(stepLimitB, INPUT);

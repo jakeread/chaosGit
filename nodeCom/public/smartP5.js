@@ -9,7 +9,7 @@ var dataPoints = new Array(); // array of our datapoint objects
 
 function setup() {
 	// createCanvas must be the first statement
-	var canvas = createCanvas(690, 600, WEBGL);  
+	var canvas = createCanvas(1600, 1060, WEBGL);  
 	canvas.position(10,10);
 	frameRate(24);
 
@@ -25,22 +25,23 @@ function setup() {
 	
 	// Status Div
 	stat = createDiv("Awaiting Status... ");
-	stat.position(710, 500);
+	stat.position(1620, 970);
 
 	// Data Div
 	dataDisplay = createDiv("data placeholder");
-	dataDisplay.position(710, 50);
+	dataDisplay.position(1620, 50);
 
 	// INPUT
 	lineIn = createInput();
-	lineIn.position(710,10);
+	lineIn.position(1620,10);
 }
 
 function draw() {
 	background(245);   // Set the background to black
 
 	orbitControl();
-	translate(0,10,-700);
+	translate(0,10,zoom);
+	//rotateX(rotate);
 
 	if (dataPoints.length > 0){
 		for(instance in dataPoints){
@@ -51,9 +52,9 @@ function draw() {
 				"<br> position Y: " + thePoint.pos.y +
 				"<br> position Z: " + thePoint.pos.z);
 			push();
-			translate(thePoint.pos.x, -thePoint.pos.z, thePoint.pos.y); // in proc, z goes into screen
+			translate(thePoint.pos.x, thePoint.pos.y, thePoint.pos.z); // in proc, z goes into screen
 			fill(thePoint.tc.r,thePoint.tc.g,thePoint.tc.b);
-			sphere(1, 6, 6); //radius, numSegs, numSegs
+			sphere(abs(0.001*zoom), 6, 6); //radius, numSegs, numSegs
 			pop();
 		} // add points in this loop, check for dead / outdated points, or fade based on time
 	}
@@ -77,10 +78,21 @@ function newData(result) {
 	}
 }
 
+var zoom = -1200;
+var rotate = 0;
+
 function keyPressed(){
 	if(keyCode == ENTER || keyCode == RETURN){
 		socket.send(lineIn.value());
 		lineIn.value("");
+	} else if(keyCode == UP_ARROW){
+		zoom += 100;
+	} else if (keyCode == DOWN_ARROW){
+		zoom -= 100;
+	} else if (keyCode == LEFT_ARROW){
+		rotate += 0.1;
+	} else if (keyCode == RIGHT_ARROW){
+		rotate -= 0.1;
 	}
 }
 
@@ -91,14 +103,14 @@ function dataPoint(data){
 	var distance = parseFloat(data.slice(data.indexOf("D")+1, data.indexOf("R")));
 	var radiant = parseFloat(data.slice(data.indexOf("R")+1, data.length));
 
-	var x = sin(radians(b))*cos(radians(a));
-	var y = sin(radians(b))*sin(radians(a));
+	var x = sin(radians(b))*cos(radians(-a));
+	var y = sin(radians(b))*sin(radians(-a));
 	var z = cos(radians(b));
 
 	var pos = {
 		"x": -distance*x*100,
-		"y": -distance*y*100,
-		"z": distance*z*100
+		"y": -distance*z*100,
+		"z": distance*y*100
 	};
 
 	var tempColour = mapTemp(radiant);
@@ -117,9 +129,9 @@ function dataPoint(data){
 
 function mapTemp(temp) {
 
-	var tempMid = 22.0;
-	var tempLow = 19.0;
-	var tempHigh = 27.0;
+	var tempMid = 26.5;
+	var tempLow = 24.0;
+	var tempHigh = 29.0;
 
 	var r, g, b; // for colours
 
