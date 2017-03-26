@@ -8,6 +8,7 @@
 ## Installing:  
 **Teensyduino** for ardCom/smartMachine  
 - does sensor readings, position-having  
+
 **Node.js** for nodeCom/main.js  
 - pipe for websockets <-> serialport  
 	- *install node on your machine*  
@@ -16,5 +17,6 @@
 		- npm install --save ws  
 		- cd /Path-To-This-Repo/nodeCom  
 		- node main.js  
+
 **Broswer** to launch browserCom/index.html
 - does UI with three.js  
