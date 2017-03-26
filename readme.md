@@ -5,7 +5,7 @@ repo for smart.princeton.edu
 (3) reasonable camera controls
 (4) sensible serial terminal
 
-Installing:
+Installing:  
 Teensyduino for ardCom/smartMachine
 Node.js for nodeCom/main.js
 	> install node on your machine
