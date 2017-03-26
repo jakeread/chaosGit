@@ -7,15 +7,15 @@ repo for smart.princeton.edu
 
 Installing:  
 **Teensyduino** for ardCom/smartMachine  
-> does sensor readings, position-having  
+does sensor readings, position-having  
 **Node.js** for nodeCom/main.js  
-> pipe for websockets <-> serialport  
-	*> install node on your machine*  
-		*> in Terminal:*  
+pipe for websockets <-> serialport  
+	*install node on your machine*  
+		*in Terminal:*  
 		npm install serialport  
 		npm install --save ws  
-		*> in Terminal*  
+		*in Terminal*  
 		cd /Path-To-This-Repo/nodeCom  
 		node main.js  
 **Broswer** to launch browserCom/index.html
-> does UI with three.js  
+does UI with three.js  
