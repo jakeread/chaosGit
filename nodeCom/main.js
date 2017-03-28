@@ -1,3 +1,5 @@
+var debug = false;
+
 // serial port: talks to the duino
 var serialport = require('serialport'),
 	SerialPort = serialport,
@@ -9,6 +11,9 @@ var SERVER_PORT = 8081;
 var wss = new WebSocketServer({port: SERVER_PORT});
 var connections = new Array; // handles the multiple connections
 
+var confCode = "";
+var confMeasure = "";
+
 //for terminal inputs
 const readline = require('readline');
 
@@ -18,10 +23,11 @@ const rl = readline.createInterface({
 });
 
 //--------------------- readline
-rl.on('line', (input) => {
-	console.log('sent to duino: ' + input);
-	myPort.write(input + '\n');
-});
+rl.on('line', parseLineIn);
+
+function parseLineIn(data){
+	parseUserInput(data);
+}
 
 //--------------------- SerialPort
 var myPort = new SerialPort(portname, { 
@@ -33,23 +39,29 @@ var myPort = new SerialPort(portname, {
 });
 
 myPort.on('open', function() {
-	console.log('port is open');
+	console.log('Serialport: Open');
 });
 
 myPort.on('close', function() {
-	console.log('port is closed');
+	console.log('Serialport: Closed');
 });
 
 myPort.on('error', function() {
-	console.log('error on serialport');
+	console.log('Serialport: Error');
 });
 
-myPort.on('data', function(data) {
-	// whenever a new data event, as per parser above, when newline and carriage return
-	console.log("from arduino: " + data); // ship data to console
-	sendToWeb(data);
-	// now make decisions and do stuff based on data
-});
+myPort.on('data', parseTeensyOutput); // on data event, do this function
+
+function parseTeensyOutput(data) { // ----------------- SERIAL IN LANDING
+	if(true){
+		console.log("teensy output: " + data); // ship data to console
+	}
+	if(data[0] == "C" || data[0] == "M"){ // kritical for scans
+		confCode = data;
+		checkConfCode();
+	}
+	publish(data);
+};
 
 //--------------------- WebSocketServer
 
@@ -69,21 +81,112 @@ function handleConnection(client) {
 }
 
 function parseClientMessage(data) { // WILL SEND TO SERIAL
-	console.log("wss: data in: " + data);
-	//myPort.write(data); // send to arduino over serial
-	// only if serial is open? can check? will throw error automatically?
+	if(debug){
+		console.log("wss: data in: " + data);
+	}
+	parseUserInput(data);
 }
 	
 function sendData(data){ //
 	for (connection in connections){ // plurals!
-		console.log("sent to connection #: " + connection + " this data: " + data);
+		if(debug){
+			console.log("sent to connection #: " + connection + " this data: " + data);
+		}
 		connections[connection].send(data);
 	}
 }
 	
-function sendToWeb(data){
-	console.log("sentToWeb: "+data);
+function publish(data){
+	if(debug){
+		console.log("sentToWeb: "+data);
+	}
 	if (connections.length > 0) {
 		sendData(data);
 	}
+}
+
+//------------------------ Data Streams
+
+function parseUserInput(data){ // -- commandLine and wss come thru here
+	console.log('parseUserInput: ' + data);
+	switch(data){
+		case "measure":
+			writeToPort("M");
+			break;
+		case "home":
+			writeToPort("H");
+			break;
+		case "scan":
+			scan.active = true;
+			startScan();
+			break
+		default:
+			writeToPort(data);
+	}
+}
+
+
+function writeToPort(data){
+	console.log("writing to port: " + data);
+	myPort.write(data + '\n');
+}
+
+//------------------------ SCANNING
+
+var scan = {
+	"a": 0,
+	"b": 0,
+	"aInterval": 3,
+	"bInterval": 3,
+	"aEnd": 90,
+	"bEnd": 120,
+	"aStart": -90,
+	"bStart": -120,
+	"currentCommand": "",
+	"active": false
+}
+
+function startScan(){
+	scan.a = scan.aStart-scan.aInterval;
+	scan.b = scan.bStart-scan.bInterval;
+	scan.currentCommand = "B"+scan.b;
+	writeToPort(scan.currentCommand);
+}
+
+function doScan(){
+	console.log("doing scan");
+	if (scan.b < scan.bEnd){
+		scan.b = scan.b+scan.bInterval;
+		scan.currentCommand = "B"+scan.b;
+		writeToPort(scan.currentCommand);
+	} else {
+		scan.b = scan.bStart;
+		scan.currentCommand = "B"+scan.b;
+		writeToPort(scan.currentCommand);
+	}
+	if (scan.b == scan.bStart){
+		scan.a = scan.a+scan.aInterval;
+		scan.currentCommand = "A"+scan.a;
+		writeToPort(scan.currentCommand);
+	} else if (scan.a > scan.aEnd){
+		writeToPort("B0");
+		setTimeout(writeToPort, 1000, "A0");
+		scan.active = false;
+		console.log("SCAN FINISHED");
+	}
+}
+
+function checkConfCode(){
+	if (confCode.includes("M")){
+		//console.log("includes M");
+		if(scan.active){
+			doScan();
+		}
+	} else if(confCode.includes(scan.currentCommand)){
+		//console.log("includes currentCommand")
+		if(scan.active){
+			writeToPort("M");
+		}
+	}
+	confCode = "";
 }
