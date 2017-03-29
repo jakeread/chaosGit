@@ -1,22 +1,21 @@
 ## repo for smart.princeton.edu  
 >// todo:  
-(1) rebuild for three.js  
+(1) serial communication more better 
 (2) save / read json, csv  
-(3) reasonable camera controls  
->(4) sensible serial terminal  
 
 ## Installing:  
-**Teensyduino** for ardCom/smartMachine  
+**Teensyduino** for arduino/smartMachine  
 - does sensor readings, position-having  
 
-**Node.js** for nodeCom/main.js  
-- pipe for websockets <-> serialport  
+**Node.js** for pipe.js & lstprts.js   
+- pipe.js for websockets <-> serialport  
 	- *install node on your machine*  
 		- *in Terminal:*  
 		- npm install serialport  
 		- npm install --save ws  
 		- cd /Path-To-This-Repo/nodeCom  
 		- node main.js  
+- lstprts.js will list all usb ports, update pipe.js portname var accordingly
 
-**Broswer** to launch browserCom/index.html
+**Broswer** to launch index.html
 - does UI with three.js  

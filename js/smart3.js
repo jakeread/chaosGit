@@ -7,7 +7,6 @@ socket.onclose = closeSocket;
 socket.onmessage = newData;
 
 function openSocket() {
-	socket.send("JS openSocket");
 	console.log("Socket Open");
 }
 
@@ -17,6 +16,7 @@ function closeSocket() {
 
 function newData(result) {  
 	console.log(result.data);
+	recentLines.add("SNSR: " + result.data);
 	//dataDisplay.html(result.data);
 	//if(result.data[0] == "M"){
 	//	stat.html("Data in...");
@@ -29,6 +29,7 @@ function newData(result) {
 
 function handleCommands(input){
 	console.log("HANDLING");
+	socket.send(input);
 	// DO IT WITH EVENTS <------------------
 }
 
@@ -44,7 +45,7 @@ function keyPressed(event){
 function commandLineInput(){
 	var input = document.getElementById("commandIn").value;
 	console.log(input);
-	recentLines.add(input);
+	recentLines.add("USER: "+ input);
 	handleCommands(input);
 	document.getElementById("commandIn").value = ""; // clear input
 }

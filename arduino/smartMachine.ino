@@ -42,9 +42,9 @@ float commandVal = 0;
 Metro hanger = Metro(100);
 
 void setup() {
-  Serial.begin(38400);
+  Serial.begin(115200);
   if(debug){
-    Serial.println("teensy: Serial hath begun.");
+    Serial.println("Teensy: init");
   }
 
   command.reserve(512); // reserve bytes for the string

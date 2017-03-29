@@ -9,12 +9,14 @@ var serialport = require('serialport'),
 var WebSocketServer = require('ws').Server;
 var SERVER_PORT = 8081;
 var wss = new WebSocketServer({port: SERVER_PORT});
-var connections = new Array; // handles the multiple connections
+var connections = new Array; 
+// handles the multiple connections
 
 var confCode = "";
 var confMeasure = "";
 
-//for terminal inputs
+//--------------------- readline
+
 const readline = require('readline');
 
 const rl = readline.createInterface({
@@ -22,7 +24,6 @@ const rl = readline.createInterface({
 	output: process.stdout
 });
 
-//--------------------- readline
 rl.on('line', parseLineIn);
 
 function parseLineIn(data){
