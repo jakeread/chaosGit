@@ -113,7 +113,7 @@ void commandDispatch() {
 
   if(debug){
     Serial.print("Line Received: ");
-    Serial.println(command);
+    Serial.print(command);
     Serial.print("commandCode: ");
     Serial.println(commandCode);
     Serial.print("commandVal: ");
@@ -122,6 +122,7 @@ void commandDispatch() {
 
 
   switch (commandCode) {
+    
     case 'X':
       Serial.println("Test Command");
       break;
@@ -141,13 +142,13 @@ void commandDispatch() {
     case 'M':
       Serial.print("M");
       Serial.print("A");
-      Serial.print(stepperA.currentPosition()/stepsPerDegA); 
+      Serial.print(15);//stepperA.currentPosition()/stepsPerDegA); 
       Serial.print("B");
-      Serial.print(stepperB.currentPosition()/stepsPerDegB);
+      Serial.print(20);//stepperB.currentPosition()/stepsPerDegB);
       Serial.print("D");
-      Serial.print(measureDistance());
+      Serial.print(20);//Serial.print(measureDistance());
       Serial.print("R");
-      Serial.println(mlx.readObjectTempC());
+      Serial.println(10);//Serial.println(mlx.readObjectTempC());
       break;
 
     case 'H':
@@ -186,9 +187,10 @@ void commandDispatch() {
       Serial.print(measureDistance());
       break;
 
-    default:
+    default :
       Serial.print("Not A Code: ");
       Serial.println(command);
+      
   }
 
   command = "";

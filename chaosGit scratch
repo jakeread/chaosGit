@@ -1,3 +1,6 @@
 - add desktop.ini to .gitignore
-- flush out coms on all sides
-- diagram how comms com
+- refactor serial protocol
+	- have teensy reply with dummy data
+- ? points, display, trig?
+- scanning protocol / method ...
+	- adaptable for geodesic / whatever you have ?

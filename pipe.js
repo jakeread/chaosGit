@@ -52,14 +52,14 @@ myPort.on('data', serialDataIn); // on data event, do this function
 
 function serialDataIn(data) { // from PORT
 	if(debug){console.log("serialDataIn: " + data);}
-	console.log("SENSOR:" + data);
+	console.log("SNSR: " + data);
 	publish(data); // send to websocket
 };
 
 function writeToPort(data){ // to PORT
 	if(debug){console.log("writeToPort: " + data);}
 	console.log("USER: " + data);
-	myPort.write(data + '\n');
+	myPort.write(data + '\n'); // send to arduino
 }
 
 //----------------------------------------- WebSocketServer
