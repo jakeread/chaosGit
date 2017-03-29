@@ -146,7 +146,7 @@ void commandDispatch() {
       Serial.print("B");
       Serial.print(20);//stepperB.currentPosition()/stepsPerDegB);
       Serial.print("D");
-      Serial.print(20);//Serial.print(measureDistance());
+      Serial.print(0.1);//Serial.print(measureDistance());
       Serial.print("R");
       Serial.println(10);//Serial.println(mlx.readObjectTempC());
       break;

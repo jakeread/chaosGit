@@ -155,7 +155,7 @@ function initThree(){
 	// camera
 
 	camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 1000);
-	camera.position.z = 50;
+	camera.position.z = 20;
 
 	controls = new THREE.TrackballControls(camera, container);
 
@@ -176,9 +176,10 @@ function initThree(){
 	// werld
 
 	scene = new THREE.Scene();
+	scene.background = new THREE.Color( 0xfafafa );
 
 	var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-	var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+	var material = new THREE.MeshBasicMaterial( { color: 0xcccccc } );
 	var cube = new THREE.Mesh( geometry, material );
 	scene.add( cube );
 
@@ -219,43 +220,26 @@ function render(){
 
 function threeAddNewPoint(dataPoint){
 
-	console.log("addNewPoint");
+	var pointGeometry = new THREE.Geometry();
 
-	var position = new Float32Array([dataPoint.pos.x, dataPoint.pos.y, dataPoint.pos.z]);
-	var color = new Float32Array(3);
-	var size = new Float32Array([200.0]);
+	var pos = new THREE.Vector3();
 
-	console.log("colors");
+	pos.x = dataPoint.pos.x;
+	pos.y = dataPoint.pos.y;
+	pos.z = dataPoint.pos.z;
 
-	var threeColor = new THREE.Color();
-	threeColor.setRGB(dataPoint.tc.r, dataPoint.tc.g, dataPoint.tc.b);
-	threeColor.toArray(color, 0);
+	pointGeometry.vertices.push(pos);
 
-	console.log("geometry");
+	var pointColor = new THREE.Color();
+	pointColor.setRGB(dataPoint.tc.r, dataPoint.tc.g, dataPoint.tc.b);
 
-	var geometry = new THREE.BufferGeometry();
-	geometry.addAttribute( 'position', new THREE.BufferAttribute( position, 3) );
-	geometry.addAttribute( 'customColor', new THREE.BufferAttribute( color, 3) );
-	geometry.addAttribute( 'size', new THREE.BufferAttribute( size, 1) );
+	var pointMaterial = new THREE.PointsMaterial({color: pointColor, size: 0.5})
 
-	console.log("material");
+	var pointField = new THREE.Points( pointGeometry, pointMaterial );
 
-	var material = new THREE.ShaderMaterial( {
-		uniforms: {
-			color:   { value: new THREE.Color( 0xffffff ) },
-			texture: { value: new THREE.TextureLoader().load( "textures/disc.png" ) }
-		},
-		vertexShader: document.getElementById( 'vertexshader' ).textContent,
-		fragmentShader: document.getElementById( 'fragmentshader' ).textContent,
-		alphaTest: 0.9
-	} );
+	scene.add( pointField );
 
-	console.log("particle");
-
-	var particle = new THREE.Points(geometry, material);
-	scene.add(particle);
-
-	console.log("fin addNewPoint");
+	render();
 
 }
 
