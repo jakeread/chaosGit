@@ -184,7 +184,7 @@ void commandDispatch() {
 
     case 'D':
       Serial.print("Distance: ");
-      Serial.print(measureDistance());
+      Serial.println(measureDistance());
       break;
 
     default :
