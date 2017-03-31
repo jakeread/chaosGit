@@ -1,6 +1,7 @@
 #include <AccelStepper.h>
 #include <Adafruit_MLX90614.h>
 #include <Metro.h>
+#include "cmdStruct.h"
 
 //steppers
 AccelStepper stepperA(AccelStepper::DRIVER, 6, 5);
@@ -33,10 +34,11 @@ unsigned long pulseWidth;
 #define lzr 14
 
 // command business
-String command = "";
-boolean commandComplete = false;
-char commandCode = ' ';
-float commandVal = 0;
+CMD command; 
+String buffString;
+// singular instance of command struct
+// were we doing this properly, a buffer of these
+
 
 // timer, to c if u hang 10
 Metro hanger = Metro(100);
@@ -44,10 +46,10 @@ Metro hanger = Metro(100);
 void setup() {
   Serial.begin(115200);
   if(debug){
-    Serial.println("Teensy: init");
+    Serial.println("init");
   }
 
-  command.reserve(512); // reserve bytes for the string
+  command.ogString.reserve(512); // reserve bytes for the string
 
   initSteppers();
   initLidar();
@@ -56,7 +58,7 @@ void setup() {
 }
 
 void loop() {
-  if (commandComplete) {
+  if (command.isReady) {
     commandDispatch();
   }
   if (hanger.check() == 1) {
@@ -69,10 +71,11 @@ void loop() {
 void serialEvent() {
   while (Serial.available()) {
     char inChar = (char)Serial.read(); // store new byte
-    command += inChar; // add to command
     if (inChar == '\n') { // trigger end of commands
-      commandComplete = true;
+      command.isReady = true;
+      break; // ready no further lines, do not add \n to command string. no need.
     }
+    command.ogString += inChar; // add to command
   }
 }
 
@@ -80,75 +83,115 @@ void flash(int pin) {
   digitalWrite(pin, !digitalRead(pin));
 }
 
-void parseCommand() {
-  char thisChar;
-  for (uint8_t i = 0; i < command.length() + 1; i++) {
-    thisChar = command.charAt(i);
-    if (isUpperCase(thisChar)) {
-      commandCode = thisChar;
-    }
+void ripCommands() {
+  int charNum = 0;
+  int pnum = 0; // this loop will roll through and add tuples
+  int runLength = command.ogString.length() + 1;
+  while (charNum < runLength) {
+    if(isUpperCase(command.ogString.charAt(charNum))){ // if it's a command code
+      command.pairs[pnum].code = command.ogString.charAt(charNum); // store code in 1st pair
+      charNum ++; // to next char
+      while (isDigit(command.ogString.charAt(charNum)) || command.ogString.charAt(charNum) == '-' || command.ogString.charAt(charNum) == '.') { // now write all succeeding digits to valString
+        command.pairs[pnum].valString += command.ogString.charAt(charNum);
+        if (charNum <= runLength){ // if still chars to read
+          charNum ++;
+        } else {
+          break;
+        }
+      } // end read digits for latest pair
+      if (command.pairs[pnum].valString.length() > 0){ // if there is a number
+        command.pairs[pnum].val = stringToFloat(command.pairs[pnum].valString);
+      } else {
+        command.pairs[pnum].val = 0.0;
+      }
+      pnum ++;
+    } // end if is upper case
+    charNum ++;
+  }
+
+  printCommand();
+}
+
+void printCommand(){
+  Serial.println("COMMAND:");
+  Serial.print("OG STRING: ");
+  Serial.println(command.ogString);
+  Serial.println(" ");
+  for(int i = 0; i < 5; i++){
+    Serial.print("prntcmd: PAIR: ");
+    Serial.println(i);
+    Serial.print("prntcmd: code: ");
+    Serial.println(command.pairs[i].code);
+    Serial.print("prntcmd: valString: ");
+    Serial.println(command.pairs[i].valString);
+    Serial.print("prntcmd: val: ");
+    Serial.println(command.pairs[i].val);
+    Serial.print("prntcmd: wasExectuted: ");
+    Serial.println(command.pairs[i].wasExecuted);
+    Serial.println(" ");
   }
 }
 
-void parseVal() {
-  String valString = "";
-  char thisChar;
-  for (uint8_t i = 0; i < command.length() + 1; i++) {
-    thisChar = command.charAt(i);
-    if (isDigit(thisChar) || thisChar == '-' || thisChar == '.') { // if is digit, -ve, decimal
-      valString += (char)thisChar;
-    }
-  } // finish looping through chars,
+void wipeCommand(){
+  Serial.println("wiping command");
+  
+  command.ogString = "";
+  command.isReady = false;
+  command.wasExecuted = false;
 
-  int length = valString.length() + 1;
+  for(int i = 0; i < 5; i ++){
+    command.pairs[i].code = '-';
+    command.pairs[i].valString = "";
+    command.pairs[i].val = 0;
+    command.pairs[i].wasExecuted = false;
+  }
+}
+
+float stringToFloat(String fltString){
+  int length = fltString.length() + 1;
   char buffer[length];
-  valString.toCharArray(buffer, length);
-  commandVal = atof(buffer);
+  fltString.toCharArray(buffer, length);
+  return atof(buffer);
 }
 
 void commandDispatch() {
  
-  parseCommand();
-  parseVal();
+  ripCommands();
 
   if(debug){
     Serial.print("Line Received: ");
-    Serial.print(command);
-    Serial.print("commandCode: ");
-    Serial.println(commandCode);
-    Serial.print("commandVal: ");
-    Serial.println(commandVal);
+    Serial.print(command.ogString);
   }
 
 
-  switch (commandCode) {
+  switch ('X') {
     
     case 'X':
       Serial.println("Test Command");
       break;
 
     case 'A': // move A motor to pos
-      goToDegA(-commandVal);
+      goToDegA(0);
       Serial.print("CA");
-      Serial.println(commandVal);
+      Serial.println(0);
       break;
 
     case 'B': //
-      goToDegB(commandVal);
+      goToDegB(0);
       Serial.print("CB");
-      Serial.println(commandVal);
+      Serial.println(0);
       break;
       
     case 'M':
       Serial.print("M");
       Serial.print("A");
-      Serial.print(15);//stepperA.currentPosition()/stepsPerDegA); 
+      Serial.print(01);//stepperA.currentPosition()/stepsPerDegA); 
       Serial.print("B");
-      Serial.print(20);//stepperB.currentPosition()/stepsPerDegB);
+      Serial.print(02);//stepperB.currentPosition()/stepsPerDegB);
       Serial.print("D");
-      Serial.print(0.1);//Serial.print(measureDistance());
+      Serial.print(03);//Serial.print(measureDistance());
       Serial.print("R");
-      Serial.println(10);//Serial.println(mlx.readObjectTempC());
+      Serial.println(04);//Serial.println(mlx.readObjectTempC());
       break;
 
     case 'H':
@@ -189,14 +232,11 @@ void commandDispatch() {
 
     default :
       Serial.print("Not A Code: ");
-      Serial.println(command);
+      Serial.println(command.ogString);
       
   }
 
-  command = "";
-  commandCode = ' ';
-  commandVal = 0;
-  commandComplete = false;
+  wipeCommand();
 
 }
 

@@ -37,27 +37,27 @@ var myPort = new SerialPort(portname, {
 });
 
 myPort.on('open', function() {
-	console.log('Serialport: Open');
+	console.log('PIPE: Serialport Open');
 });
 
 myPort.on('close', function() {
-	console.log('Serialport: Closed');
+	console.log('PIPE: Serialport Closed');
 });
 
 myPort.on('error', function() {
-	console.log('Serialport: Error');
+	console.log('PIPE: Serialport Error');
 });
 
 myPort.on('data', serialDataIn); // on data event, do this function
 
 function serialDataIn(data) { // from PORT
-	if(debug){console.log("serialDataIn: " + data);}
+	if(debug){console.log("PIPE: serialDataIn: " + data);}
 	console.log("SNSR: " + data);
 	publish(data); // send to websocket
 };
 
 function writeToPort(data){ // to PORT
-	if(debug){console.log("writeToPort: " + data);}
+	if(debug){console.log("PIPE: writeToPort: " + data);}
 	console.log("USER: " + data);
 	myPort.write(data + '\n'); // send to arduino
 }
@@ -73,13 +73,13 @@ var connections = new Array; // handles the multiple connections
 wss.on('connection', handleConnection);
 
 function handleConnection(client) {
-	console.log("wss: new connection");
+	console.log("PIPE: wss new connection");
 	connections.push(client); // add client to connections array
 	
 	client.on('message', writeToPort); // when we get a message, parse & do stuff
 	
 	client.on('close', function() {
-		console.log("wss: connection closed");
+		console.log("PIPE: wss connection closed");
 		var position = connections.indexOf(client); // index of connection in array of connections
 		connections.splice(position, 1); // remove from array
 	});
@@ -87,13 +87,13 @@ function handleConnection(client) {
 	
 function sendData(data){ // To WebSocket, per connection
 	for (connection in connections){ // plurals!
-		if(debug){console.log("sent to connection #: " + connection + " this data: " + data);}
+		if(debug){console.log("PIPE: sent to connection #: " + connection + " this data: " + data);}
 		connections[connection].send(data);
 	}
 }
 	
 function publish(data){ // To WebSocket, all connections
-	if(debug){console.log("sentToWeb: "+data);}
+	if(debug){console.log("PIPE: sentToWeb: "+data);}
 	if (connections.length > 0) {
 		sendData(data);
 	}
