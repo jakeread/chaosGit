@@ -25,7 +25,7 @@ function parseLineIn(data){
 
 var serialport = require('serialport'),
 	SerialPort = serialport,
-	portname = '/dev/ttyACM0'; 
+	portname = 'COM10'; //'/dev/ttyACM0'; // to do direct
 	//process.argv[2]; // to read serial port name from command line
 
 var myPort = new SerialPort(portname, { 

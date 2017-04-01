@@ -41,7 +41,7 @@ String buffString;
 
 
 // timer, to c if u hang 10
-Metro hanger = Metro(100);
+Metro hanger = Metro(25);
 
 void setup() {
   Serial.begin(115200);
@@ -59,7 +59,7 @@ void setup() {
 
 void loop() {
   if (command.isReady) {
-    commandDispatch();
+    commandDispatch(); // at this point we are one-at-a-time command execution with no buffers :|
   }
   if (hanger.check() == 1) {
     flash(statusLed);
@@ -83,36 +83,56 @@ void flash(int pin) {
   digitalWrite(pin, !digitalRead(pin));
 }
 
+void commandDispatch() {
+  
+  if(debug){
+    Serial.print("Line Received: ");
+    Serial.print(command.ogString);
+  }
+ 
+  ripCommands(); // rips through string, builds command object
+
+  for(int i = 0; i < 5; i ++){
+    if(command.pairs[i].isReady){
+      pairSetup(i);
+    }
+  }
+  executeBlock();
+  wipeCommand();
+}
+
 void ripCommands() {
   int charNum = 0;
   int pnum = 0; // this loop will roll through and add tuples
   int runLength = command.ogString.length() + 1;
-  while (charNum < runLength) {
-    if(isUpperCase(command.ogString.charAt(charNum))){ // if it's a command code
+  
+  while (charNum < runLength) { // LOOPING THROUGH THE COMMAND
+    if(isAlpha(command.ogString.charAt(charNum))){ // WHEN WE FIND A COMMAND CODE
       command.pairs[pnum].code = command.ogString.charAt(charNum); // store code in 1st pair
       charNum ++; // to next char
-      while (isDigit(command.ogString.charAt(charNum)) || command.ogString.charAt(charNum) == '-' || command.ogString.charAt(charNum) == '.') { // now write all succeeding digits to valString
+      // DO Number-find proceeding Command Code \/
+      while (isDigit(command.ogString.charAt(charNum)) || command.ogString.charAt(charNum) == '-' || command.ogString.charAt(charNum) == '.') { 
         command.pairs[pnum].valString += command.ogString.charAt(charNum);
-        if (charNum <= runLength){ // if still chars to read
-          charNum ++;
-        } else {
-          break;
-        }
-      } // end read digits for latest pair
+        if (charNum < runLength){ charNum ++; } else { Serial.println("BRKPNT 1"); break; } // go to next char, or bail if none left
+      } // done reading digits to char string
       if (command.pairs[pnum].valString.length() > 0){ // if there is a number
         command.pairs[pnum].val = stringToFloat(command.pairs[pnum].valString);
       } else {
-        command.pairs[pnum].val = 0.0;
+        command.pairs[pnum].val = 0.00;
       }
-      pnum ++;
-    } // end if is upper case
-    charNum ++;
+      command.pairs[pnum].isReady = true; // set flags
+      command.pairs[pnum].wasExecuted = false;
+      pnum ++; // only iterate pair once - per new alpha character
+    } else {
+      charNum ++;
+    }
   }
-
-  printCommand();
+  command.wasExecuted = false;
+  if(true){printCommand();}
 }
 
 void printCommand(){
+  Serial.println(" ");
   Serial.println("COMMAND:");
   Serial.print("OG STRING: ");
   Serial.println(command.ogString);
@@ -132,21 +152,6 @@ void printCommand(){
   }
 }
 
-void wipeCommand(){
-  Serial.println("wiping command");
-  
-  command.ogString = "";
-  command.isReady = false;
-  command.wasExecuted = false;
-
-  for(int i = 0; i < 5; i ++){
-    command.pairs[i].code = '-';
-    command.pairs[i].valString = "";
-    command.pairs[i].val = 0;
-    command.pairs[i].wasExecuted = false;
-  }
-}
-
 float stringToFloat(String fltString){
   int length = fltString.length() + 1;
   char buffer[length];
@@ -154,90 +159,125 @@ float stringToFloat(String fltString){
   return atof(buffer);
 }
 
-void commandDispatch() {
- 
-  ripCommands();
-
-  if(debug){
-    Serial.print("Line Received: ");
-    Serial.print(command.ogString);
-  }
-
-
-  switch ('X') {
+void pairSetup(int i){
+  
+  char code = command.pairs[i].code;
+  float val = command.pairs[i].val;
+  
+  switch (code) {
     
     case 'X':
-      Serial.println("Test Command");
+      command.replyString += "X Test";
       break;
 
     case 'A': // move A motor to pos
-      goToDegA(0);
-      Serial.print("CA");
-      Serial.println(0);
+      goToDegA(val, false); // go to this pos, don't wait yet
+      command.hasToMove = true;
+      //command.pairs[i].replyString += "CA";
+      //command.pairs[i].replyString += String(val);
       break;
 
     case 'B': //
-      goToDegB(0);
-      Serial.print("CB");
-      Serial.println(0);
+      goToDegB(val, false);
+      command.hasToMove = true;
+      //command.pairs[i].replyString += "CB";
+      //command.pairs[i].replyString += String(val);
       break;
       
     case 'M':
-      Serial.print("M");
-      Serial.print("A");
-      Serial.print(01);//stepperA.currentPosition()/stepsPerDegA); 
-      Serial.print("B");
-      Serial.print(02);//stepperB.currentPosition()/stepsPerDegB);
-      Serial.print("D");
-      Serial.print(03);//Serial.print(measureDistance());
-      Serial.print("R");
-      Serial.println(04);//Serial.println(mlx.readObjectTempC());
+      command.isMeasurement = true;
       break;
 
     case 'H':
       homeSteppers();
-      Serial.println("Homed");
+      command.replyString += "H Homed";
       break;
 
     case 'C':
       disableSteppers();
-      Serial.println("Steppers Disabled");
+      command.replyString += "C Disabled Steppers";
       break;
 
     case 'E':
       enableSteppers();
-      Serial.println("Steppers Enabled");
+      command.replyString += "E Enabled Steppers";
       break;
 
     case 'L':
       flash(lzr);
-      Serial.println("Laserbeams On");
+      command.replyString += "L Laser Toggle";
       break;
 
     case 'R':
       delay(100);
-      Serial.print("Mylexis: ");
-      Serial.println(mlx.readObjectTempC());
+      command.replyString += "R Mylexis: ";
+      command.replyString += String(mlx.readObjectTempC());
       break;
 
     case 'T':
-      Serial.print("Ambient: ");
-      Serial.println(mlx.readAmbientTempC());
+      command.replyString += "T Ambient: ";
+      command.replyString += String(mlx.readAmbientTempC());
       break;
 
     case 'D':
-      Serial.print("Distance: ");
-      Serial.println(measureDistance());
+      command.replyString += "D Distance: ";
+      command.replyString += String(measureDistance());
       break;
 
     default :
-      Serial.print("Not A Code: ");
-      Serial.println(command.ogString);
+      command.replyString += "Unknown Code in Command: ";
+      command.replyString += command.ogString;
+  } // end case
       
+}
+
+void executeBlock(){
+
+  if(command.hasToMove){ // do moves first
+    while (stepperA.distanceToGo() != 0 && stepperB.distanceToGo() != 0) {
+      stepperA.run();
+      stepperB.run();
+    }
+    command.hasToMove = false;
   }
 
-  wipeCommand();
+  if(command.isMeasurement){ // setup measurement reply
+    delay(100); // for mylexis
+    command.replyString = ""; // clear other replies: we only want to send measurement notification
+    command.replyString += "M";
+    command.replyString += "A";
+    command.replyString += String(stepperA.currentPosition()/stepsPerDegA); 
+    command.replyString += "B";
+    command.replyString += String(stepperB.currentPosition()/stepsPerDegB);
+    command.replyString += "D";
+    //command.replyString += String(measureDistance());
+    command.replyString += "R";
+    //command.replyString += String(mlx.readObjectTempC());
+    Serial.println(command.replyString);
+  } else {
+    Serial.println(command.replyString);
+  }
 
+  command.wasExecuted = true;
+  
+}
+
+void wipeCommand(){
+  Serial.println("wiping command");
+  
+  command.ogString = "";
+  command.isReady = false;
+  command.wasExecuted = false;
+  command.hasToMove = false;
+  command.isMeasurement = false;
+
+  for(int i = 0; i < 5; i ++){
+    command.pairs[i].code = '-';
+    command.pairs[i].valString = "";
+    command.pairs[i].val = 0;
+    command.pairs[i].wasExecuted = true;
+    command.pairs[i].isReady = false;
+  }
 }
 
 // ----------------- STEPPERS
@@ -275,33 +315,37 @@ void homeSteppers() {
     stepperB.runSpeed();
   }
   stepperB.setCurrentPosition(degWhenHomedB * stepsPerDegB);
-  goToDegB(0);
+  goToDegB(0, true);
   Serial.println("Homed Steppers");
   // while notswitched, move at speed, then set to 0 pos, move to pos_after_home, set to 0pos
 
 }
 
-void goToDegA(float deg) {
+void goToDegA(float deg, bool wait) {
   if (deg > 95 || deg < -95) {
-    Serial.print("yer outta bounds there bud: on A: ");
+    Serial.print("Stepper OOB on A: ");
     Serial.println(deg);
   }
   int steps = round(deg * stepsPerDegA);
   stepperA.moveTo(steps);
-  while (stepperA.distanceToGo() != 0) {
-    stepperA.run();
+  if(wait){
+    while (stepperA.distanceToGo() != 0) {
+      stepperA.run();
+    }
   }
 }
 
-void goToDegB(float deg) {
+void goToDegB(float deg, bool wait) {
   if (deg > 120 || deg < -120) {
-    Serial.print("yer outta bounds there bud: on B: ");
+    Serial.print("Stepper OOB on B: ");
     Serial.println(deg);
   }
   int steps = round(deg * stepsPerDegB);
   stepperB.moveTo(steps);
-  while (stepperB.distanceToGo() != 0) {
-    stepperB.run();
+  if(wait){
+    while (stepperB.distanceToGo() != 0) {
+      stepperB.run();
+    }
   }
 }
 
