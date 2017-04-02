@@ -192,6 +192,10 @@ void pairSetup(int i){
       command.isMeasurement = true;
       break;
 
+    case 'S':
+      command.isScanSequence = true;
+      break;
+
     case 'H':
       homeSteppers();
       command.replyString += "H Homed";
@@ -245,9 +249,16 @@ void executeBlock(){
     command.hasToMove = false;
   }
 
+  if(command.isScanSequence || command.isMeasurement){
+    command.replyString = ""; // clear other replies: we only want to send measurement notification
+  }
+
+  if(command.isScanSequence){ // S char triggers next scan request
+    command.replyString += "S";
+  }
+
   if(command.isMeasurement){ // setup measurement reply
     delay(100); // for mylexis
-    command.replyString = ""; // clear other replies: we only want to send measurement notification
     command.replyString += "M";
     command.replyString += "A";
     command.replyString += String(stepperA.currentPosition()/stepsPerDegA); 
@@ -257,10 +268,9 @@ void executeBlock(){
     command.replyString += String(10.0);//command.replyString += String(measureDistance());
     command.replyString += "R";
     command.replyString += String(mlx.readObjectTempC());
-    Serial.println(command.replyString);
-  } else {
-    Serial.println(command.replyString);
   }
+
+  Serial.println(command.replyString);
 
   command.wasExecuted = true;
   
@@ -273,6 +283,7 @@ void wipeCommand(){
   command.wasExecuted = false;
   command.hasToMove = false;
   command.isMeasurement = false;
+  command.isScanSequence = false;
   command.replyString = "";
 
   for(int i = 0; i < 5; i ++){
@@ -320,14 +331,14 @@ void homeSteppers() {
   }
   stepperB.setCurrentPosition(degWhenHomedB * stepsPerDegB);
   goToDegB(0, true);
-  Serial.println("Homed Steppers");
+  Serial.println("Homed");
   // while notswitched, move at speed, then set to 0 pos, move to pos_after_home, set to 0pos
 
 }
 
 void goToDegA(float deg, bool wait) {
   if (deg > 95 || deg < -95) {
-    Serial.print("Stepper OOB on A: ");
+    Serial.print("OOB on A: ");
     Serial.println(deg);
   }
   int steps = round(deg * stepsPerDegA);
@@ -341,7 +352,7 @@ void goToDegA(float deg, bool wait) {
 
 void goToDegB(float deg, bool wait) {
   if (deg > 120 || deg < -120) {
-    Serial.print("Stepper OOB on B: ");
+    Serial.print("OOB on B: ");
     Serial.println(deg);
   }
   int steps = round(deg * stepsPerDegB);

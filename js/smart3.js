@@ -20,7 +20,10 @@ function newData(result) {
 	var theData = result.data;
 	if(debug){console.log("js newData:" + theData);}
 	recentLines.add("SNSR: " + theData);
-	if(theData[0] == "M"){
+	if(theData[0] == "S"){
+		scan.doNextPoint();
+	}
+	if(theData[0] == "M" || theData[1] == "M"){
 		if(debug){console.log("in M-message");}
 		var dtp = dataPoint(theData); // dataPoint returns object
 		dataPoints.push(dtp); // puts object in array of objects
@@ -54,7 +57,7 @@ function handleCommands(input){
 		case "scan":
 		case "Scan":
 		case "SCAN":
-			doScan();
+			scan.init();
 			break;
 	}
 	// DO IT WITH EVENTS <------------------
@@ -162,28 +165,8 @@ function mapTemp(temp) { // used by dataPoint to build temp->color
 
 // ----------------------------------------------------------------------------------------------- DATA MANAGEMENT
 
-var scanPattern;
-
-function loadJSON(callback){
-	var xobj = new XMLHttpRequest();
-	xobj.overrideMimeType("application/json");
-	xobj.open('GET', './scanParams/pyOutTest.json', true);
-	xobj.onreadystatechange = function(){
-		if(xobj.readyState == 4 && xobj.status == "200"){
-			callback(xobj.responseText);
-		}
-	}
-	xobj.send(null);
-}
-
-loadJSON(function(response){
-	scanPattern = JSON.parse(response);
-	console.log(scanPattern[0]);
-	console.log(scanPattern[1]);
-})
-
-function saveData(dataArray){
-	if (dataArray.length < 1){
+function saveData(){
+	if (dataPoints.length < 1){
 		recentLines.add("THR3: dataPoints array is of length 0")
 	} else {
 		recentLines.add("THR3: saving data...");
@@ -202,32 +185,64 @@ function loadScanPatter(){
 
 // ----------------------------------------------------------------------------------------------- SCAN MANAGEMENT
 
-//var jtext = FileReader.readAsText('pyOutTest.json');
-//var scanPoints = JSON.parse(jtext);
-//var scanPoints = JSON.parse('[{"x":216,"y":58.282525588539},{"x":288,"y": 58.282525588539},{"x":51.3401917459099,"y": 90},{"x":144,"y": 58.282525588539},{"x":180,"y": 90},{"x":72,"y": 58.282525588539},{"x":144,"y": 58.282525588539},{"x":312.436229788535,"y": 90},{"x":0,"y": 58.282525588539},{"x":72,"y": 58.282525588539},{"x":33.146995832256,"y": 90}]');
+var scanPattern;
 
-var currentScan = {
+function loadJSON(callback){
+	var xobj = new XMLHttpRequest();
+	xobj.overrideMimeType("application/json");
+	xobj.open('GET', './scanParams/pyOutTest.json', true);
+	xobj.onreadystatechange = function(){
+		if(xobj.readyState == 4 && xobj.status == "200"){
+			callback(xobj.responseText);
+		}
+	}
+	xobj.send(null);
+}
 
-	isRunning: false,
+loadJSON(function(response){
+	scanPattern = JSON.parse(response);
+	console.log(scanPattern[0]);
+	console.log(scanPattern.length);
+});
 
-	//scanPoints: scanPoints,
+var scan = {
+
+	"isRunning": false,
+
+	"scanIndices": [],
 
 	init: function(){
 		this.isRunning = true;
-		console.log("Scanning");
-	}
-}
+		recentLines.add("THR3: Scanning...");
+		this.doNextPoint();
+		console.log("SCAN INIT: " + scanPattern);
+	},
 
-function doScan(){
-	// "just do it"
-	// - shia
-	currentScan.init();
-}
+	doNextPoint: function(){
+		if(this.scanIndices.length > scanPattern.length){
+			recentLines.add("THR3: Scan complete")
+			this.isRunning = false;
+			saveData();
+		} else if (this.scanIndices.length < 1) { // this can only run once per scan
+			this.scanIndices.push(0); // initialize
+		} else {
+			this.scanIndices[this.scanIndices.length] = this.scanIndices.length;
+			console.log("pushed new");
+			console.log(this.scanIndices.length);
+		}
+		socket.send("MS" + "A" + scanPattern[this.scanIndices[0]].x + "B" + "20");//scanPattern[this.scanIndices[0]].y); // should have a, b structure in scanPattern
+	},
 
-function kickScan(){
-	if(currentScan.isRunning){
-		// f
-	}
+	doBoundsCheck: function(a,b){
+		var aBounds = [-95, 95];
+		var bBounds = [-120, 120];
+
+		if(a < aBounds[0] || a > aBounds[1] || b < bBounds [0] || b > bBounds[1]){
+			return false;
+		} else {
+			return true;
+		}
+	},
 }
 
 // ----------------------------------------------------------------------------------------------- GRAPHICS

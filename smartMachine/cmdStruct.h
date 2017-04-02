@@ -12,6 +12,7 @@ struct CMD {
   bool isReady = false;
   bool hasToMove = false;
   bool isMeasurement = false;
+  bool isScanSequence = false;
   bool wasExecuted = false;
   String replyString = "";
 };
