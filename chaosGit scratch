@@ -1,14 +1,8 @@
-- refactor serial protocol
-	- have teensy reply with dummy data
-	- do two steppers at once ?
 - ? points, display, trig?
 - units std meters - ? what is three.js ?
+
 - scanning protocol / method ...
 	- adaptable for geodesic / whatever you have ?
-- saves json
-
-- bonus trix
-	- pipe reports to web when serial closed, opens
 
 - business trix
 	- talk strategy with Forrest

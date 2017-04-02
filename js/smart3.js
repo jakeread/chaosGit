@@ -1,6 +1,6 @@
-var debug = true;
+var debug = false;
 
-// ----------------------------------- COMMUNICATION
+// ----------------------------------------------------------------------------------------------- COMMUNICATION
 
 var socket = new WebSocket("ws://localhost:8081");
 
@@ -27,11 +27,36 @@ function newData(result) {
 	}
 }
 
-// ----------------------------------- TEXT TERMINAL
+// ----------------------------------------------------------------------------------------------- TEXT TERMINAL
 
 function handleCommands(input){
 	if(debug){console.log("js handleCommands: " + input);}
-	socket.send(input);
+	switch(input){
+		default:
+			socket.send(input);
+			break;
+		case "save":
+		case "Save":
+		case "SAVE":
+			saveData(dataPoints);
+			break;
+		case "load":
+		case "Load":
+		case "LOAD":
+			loadData();
+			break;
+		case "load pattern":
+		case "Load Pattern":
+		case "Load pattern":
+		case "LOAD PATTERN":
+			loadScanPattern();
+			break;
+		case "scan":
+		case "Scan":
+		case "SCAN":
+			doScan();
+			break;
+	}
 	// DO IT WITH EVENTS <------------------
 }
 
@@ -65,11 +90,11 @@ var recentLines = { // lines display obj
 		for(i = 0; i < this.lines.length; i ++){
 			this.domLines.innerHTML += this.lines[i] + "</br>"; // re-write
 		}
-		if(false){console.log(this.lines);}
+		if(debug){console.log(this.lines);}
 	}
 }
 
-// ----------------------------------- DATA
+// ----------------------------------------------------------------------------------------------- DATA
 
 var dataPoints = new Array();
 
@@ -85,9 +110,9 @@ function dataPoint(data){ // writes points on receipt of M-messages
 	var z = Math.cos(Math.radians(b));
 
 	var pos = {
-		"x": -distance*x*100,
-		"y": -distance*z*100,
-		"z": distance*y*100
+		"x": -distance*x*1,
+		"y": -distance*z*1,
+		"z": distance*y*1
 	};
 
 	var tempColour = mapTemp(radiant);
@@ -135,7 +160,77 @@ function mapTemp(temp) { // used by dataPoint to build temp->color
 	return tempColour;
 }
 
-// ----------------------------------- GRAPHICS
+// ----------------------------------------------------------------------------------------------- DATA MANAGEMENT
+
+var scanPattern;
+
+function loadJSON(callback){
+	var xobj = new XMLHttpRequest();
+	xobj.overrideMimeType("application/json");
+	xobj.open('GET', './scanParams/pyOutTest.json', true);
+	xobj.onreadystatechange = function(){
+		if(xobj.readyState == 4 && xobj.status == "200"){
+			callback(xobj.responseText);
+		}
+	}
+	xobj.send(null);
+}
+
+loadJSON(function(response){
+	scanPattern = JSON.parse(response);
+	console.log(scanPattern[0]);
+	console.log(scanPattern[1]);
+})
+
+function saveData(dataArray){
+	if (dataArray.length < 1){
+		recentLines.add("THR3: dataPoints array is of length 0")
+	} else {
+		recentLines.add("THR3: saving data...");
+		var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataPoints));
+		recentLines.add("THR3: " + '<a href="data:' + data + '" download="data.json">Download JSON</a>');
+	}
+}
+
+function loadData(){
+	recentLines.add("THR3: loading not implemented atm");
+}
+
+function loadScanPatter(){
+	recentLines.add("THR3: loading scans not implemented atm");
+}
+
+// ----------------------------------------------------------------------------------------------- SCAN MANAGEMENT
+
+//var jtext = FileReader.readAsText('pyOutTest.json');
+//var scanPoints = JSON.parse(jtext);
+//var scanPoints = JSON.parse('[{"x":216,"y":58.282525588539},{"x":288,"y": 58.282525588539},{"x":51.3401917459099,"y": 90},{"x":144,"y": 58.282525588539},{"x":180,"y": 90},{"x":72,"y": 58.282525588539},{"x":144,"y": 58.282525588539},{"x":312.436229788535,"y": 90},{"x":0,"y": 58.282525588539},{"x":72,"y": 58.282525588539},{"x":33.146995832256,"y": 90}]');
+
+var currentScan = {
+
+	isRunning: false,
+
+	//scanPoints: scanPoints,
+
+	init: function(){
+		this.isRunning = true;
+		console.log("Scanning");
+	}
+}
+
+function doScan(){
+	// "just do it"
+	// - shia
+	currentScan.init();
+}
+
+function kickScan(){
+	if(currentScan.isRunning){
+		// f
+	}
+}
+
+// ----------------------------------------------------------------------------------------------- GRAPHICS
 
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
@@ -159,9 +254,9 @@ function initThree(){
 
 	controls = new THREE.TrackballControls(camera, container);
 
-	controls.rotateSpeed = 1.0;
-	controls.zoomSpeed = 1.2;
-	controls.panSpeed = 0.8;
+	controls.rotateSpeed = 2.0;
+	controls.zoomSpeed = 2.0;
+	controls.panSpeed = 1.2;
 
 	controls.noZoom = false;
 	controls.noPan = false;	
@@ -180,6 +275,8 @@ function initThree(){
 
 	var geometry = new THREE.BoxGeometry( 1, 1, 1 );
 	var material = new THREE.MeshBasicMaterial( { color: 0xcccccc } );
+	material.transparent = true;
+	material.opacity = 0.5;
 	var cube = new THREE.Mesh( geometry, material );
 	scene.add( cube );
 
@@ -243,7 +340,7 @@ function threeAddNewPoint(dataPoint){
 
 }
 
-// ----------------------------------- UTILS
+// ----------------------------------------------------------------------------------------------- UTILS
 
 Math.radians = function(degrees) {
 	return degrees * Math.PI / 180;

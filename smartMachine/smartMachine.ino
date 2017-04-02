@@ -128,12 +128,12 @@ void ripCommands() {
     }
   }
   command.wasExecuted = false;
-  if(true){printCommand();}
+  if(false){printCommand();}
 }
 
 void printCommand(){
   Serial.println(" ");
-  Serial.println("COMMAND:");
+  Serial.println("PRINT COMMAND:");
   Serial.print("OG STRING: ");
   Serial.println(command.ogString);
   Serial.println(" ");
@@ -173,6 +173,8 @@ void pairSetup(int i){
     case 'A': // move A motor to pos
       goToDegA(val, false); // go to this pos, don't wait yet
       command.hasToMove = true;
+      command.replyString += "A";
+      command.replyString += String(val);
       //command.pairs[i].replyString += "CA";
       //command.pairs[i].replyString += String(val);
       break;
@@ -180,6 +182,8 @@ void pairSetup(int i){
     case 'B': //
       goToDegB(val, false);
       command.hasToMove = true;
+      command.replyString += "B";
+      command.replyString += String(val);
       //command.pairs[i].replyString += "CB";
       //command.pairs[i].replyString += String(val);
       break;
@@ -234,7 +238,7 @@ void pairSetup(int i){
 void executeBlock(){
 
   if(command.hasToMove){ // do moves first
-    while (stepperA.distanceToGo() != 0 && stepperB.distanceToGo() != 0) {
+    while (stepperA.distanceToGo() != 0 || stepperB.distanceToGo() != 0) {
       stepperA.run();
       stepperB.run();
     }
@@ -250,9 +254,9 @@ void executeBlock(){
     command.replyString += "B";
     command.replyString += String(stepperB.currentPosition()/stepsPerDegB);
     command.replyString += "D";
-    //command.replyString += String(measureDistance());
+    command.replyString += String(10.0);//command.replyString += String(measureDistance());
     command.replyString += "R";
-    //command.replyString += String(mlx.readObjectTempC());
+    command.replyString += String(mlx.readObjectTempC());
     Serial.println(command.replyString);
   } else {
     Serial.println(command.replyString);
@@ -263,13 +267,13 @@ void executeBlock(){
 }
 
 void wipeCommand(){
-  Serial.println("wiping command");
-  
+    
   command.ogString = "";
   command.isReady = false;
   command.wasExecuted = false;
   command.hasToMove = false;
   command.isMeasurement = false;
+  command.replyString = "";
 
   for(int i = 0; i < 5; i ++){
     command.pairs[i].code = '-';

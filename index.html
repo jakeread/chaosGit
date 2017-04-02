@@ -43,6 +43,15 @@
 	<body>
 		<div id="wrapper">
 			<div id="sidebar">
+				<!-- 
+				-in the future, we will want to provide the option to
+				upload saved JSONs for viewing only...
+				also: uploading scan patterns
+				<form id="file-form" action="handler.php" method="POST">
+  					<input type="file" id="file-select" name="photos[]" multiple/>
+  					<button type="submit" id="upload-button">Upload JSON</button>
+				</form>
+				-->
 				<p id="recentLines"></p>
 				<input type="text" id="commandIn" value="">
 				<!--<button onclick="commandLineInput()">Line</button>-->
@@ -53,28 +62,7 @@
 		<script src="js/controls/TrackballControls.js"></script>
 		<script src="js/Detector.js"></script>
 		
-		<script type="x-shader/x-vertex" id="vertexshader">
-			attribute float size;
-			attribute vec3 customColor;
-			varying vec3 vColor;
-			void main() {
-				vColor = customColor;
-				vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-				gl_PointSize = size * ( 300.0 / -mvPosition.z );
-				gl_Position = projectionMatrix * mvPosition;
-			}
-		</script>
-
-		<script type="x-shader/x-fragment" id="fragmentshader">
-			uniform vec3 color;
-			uniform sampler2D texture;
-			varying vec3 vColor;
-			void main() {
-				gl_FragColor = vec4( color * vColor, 1.0 );
-				gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );
-				if ( gl_FragColor.a < ALPHATEST ) discard;
-			}
-		</script>
+		<script src="js/require.js"></script> <!--  data-main="js/smart3.js" -->
 
 		<script src="js/smart3.js"></script>
 	</body>
