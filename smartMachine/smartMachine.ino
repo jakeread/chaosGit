@@ -10,10 +10,10 @@ AccelStepper stepperB(AccelStepper::DRIVER, 11, 10);
 #define stepEnB 12
 #define stepLimitA 7
 #define stepLimitB 8
-#define stepsPerDegA 40.1
+#define stepsPerDegA 50.1
 #define stepsPerDegB 28.8
-#define degWhenHomedA 10
-#define degWhenHomedB -100
+#define degWhenHomedA -10
+#define degWhenHomedB -15
 #define stepHomeSpeed 1000
 boolean stepEnabled = false;
 
@@ -37,7 +37,7 @@ unsigned long pulseWidth;
 CMD command; 
 String buffString;
 // singular instance of command struct
-// were we doing this properly, a buffer of these
+// were we doing this properly, a buffer of these ! alas
 
 
 // timer, to c if u hang 10
@@ -324,13 +324,22 @@ void disableSteppers() {
 }
 
 void homeSteppers() {
-  stepperA.setCurrentPosition(0);
+  // home A
+  stepperA.setSpeed(stepHomeSpeed);
+  while(digitalRead(stepLimitA) == 1) {
+    stepperA.runSpeed(); // should have timeout for if this doesn't switch
+  }
+  stepperA.setCurrentPosition(degWhenHomedA * stepsPerDegA);
+  goToDegA(0, true);
+
+  // home B
   stepperB.setSpeed(-stepHomeSpeed);
   while (digitalRead(stepLimitB) == 1) {
     stepperB.runSpeed();
   }
   stepperB.setCurrentPosition(degWhenHomedB * stepsPerDegB);
   goToDegB(0, true);
+  
   Serial.println("Homed");
   // while notswitched, move at speed, then set to 0 pos, move to pos_after_home, set to 0pos
 
