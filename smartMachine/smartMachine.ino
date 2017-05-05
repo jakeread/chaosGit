@@ -11,9 +11,9 @@ AccelStepper stepperB(AccelStepper::DRIVER, 11, 10);
 #define stepLimitA 7
 #define stepLimitB 8
 #define stepsPerDegA 50.1
-#define stepsPerDegB 28.8
+#define stepsPerDegB 36 // (16/numTeeth * 200*microStep) / 360
 #define degWhenHomedA -10
-#define degWhenHomedB -15
+#define degWhenHomedB 50
 #define stepHomeSpeed 1000
 boolean stepEnabled = false;
 
@@ -25,7 +25,8 @@ Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 //lidar
 unsigned long pulseWidth;
 #define lidarMode 16
-#define lidarMonitor 15
+#define lidarMonitor 15L
+
 
 //flashing lights
 #define statusLed 13
@@ -325,28 +326,45 @@ void disableSteppers() {
 
 void homeSteppers() {
   // home A
+  stepperA.setCurrentPosition(0);  
+  if(digitalRead(stepLimitA) == 0){ // if already home, back off so we hit switch at same spot
+    goToDegA(-20, true);
+  }
+  
   stepperA.setSpeed(stepHomeSpeed);
   while(digitalRead(stepLimitA) == 1) {
     stepperA.runSpeed(); // should have timeout for if this doesn't switch
   }
-  stepperA.setCurrentPosition(degWhenHomedA * stepsPerDegA);
+  // on exit, if we have travelled more than ~200 degrees, we have swung the wrong way,
+  // do setCurrent Position +/- 360* so that we unwind on the next move
+  if(stepperA.currentPosition() / stepsPerDegA > 200){
+    stepperA.setCurrentPosition(degWhenHomedA * stepsPerDegA + 360 * stepsPerDegA);
+  } else { 
+    stepperA.setCurrentPosition(degWhenHomedA * stepsPerDegA);
+  }
   goToDegA(0, true);
 
+  
   // home B
-  stepperB.setSpeed(-stepHomeSpeed);
+  stepperB.setCurrentPosition(0);
+  if(digitalRead(stepLimitB) == 0) {
+    goToDegB(-20, true);
+  }
+  
+  stepperB.setSpeed(stepHomeSpeed);
   while (digitalRead(stepLimitB) == 1) {
     stepperB.runSpeed();
   }
-  stepperB.setCurrentPosition(degWhenHomedB * stepsPerDegB);
+  if(stepperB.currentPosition() / stepsPerDegB > 200){
+    stepperB.setCurrentPosition(degWhenHomedB * stepsPerDegB + 360 * stepsPerDegB);
+  } else {
+    stepperB.setCurrentPosition(degWhenHomedB * stepsPerDegB);
+  }
   goToDegB(0, true);
-  
-  Serial.println("Homed");
-  // while notswitched, move at speed, then set to 0 pos, move to pos_after_home, set to 0pos
-
 }
 
 void goToDegA(float deg, bool wait) {
-  if (deg > 95 || deg < -95) {
+  if (deg > 360 || deg < 0) {
     Serial.print("OOB on A: ");
     Serial.println(deg);
   }

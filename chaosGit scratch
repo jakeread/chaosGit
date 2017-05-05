@@ -1,10 +1,13 @@
-- ? points, display, trig?
-- units std meters - ? what is three.js ?
-
-- scanning protocol / method ...
-	- adaptable for geodesic / whatever you have ?
+- scan object...
+	- clarify, display points not-scanned, point-scanning, point-updating
+	- 'load scan'
+	- 'do scan'
+		- homes,
+		- 1st point,
+		- doNextPoint
 
 - document codes
+- .. objectify both? pls?
 
 - business trix
 	- talk strategy with Forrest

@@ -39,24 +39,12 @@ function handleCommands(input){
 			socket.send(input);
 			break;
 		case "save":
-		case "Save":
-		case "SAVE":
 			saveData(dataPoints);
 			break;
-		case "load":
-		case "Load":
-		case "LOAD":
-			loadData();
+		case "load scan":
+			scan.prepare();
 			break;
-		case "load pattern":
-		case "Load Pattern":
-		case "Load pattern":
-		case "LOAD PATTERN":
-			loadScanPattern();
-			break;
-		case "scan":
-		case "Scan":
-		case "SCAN":
+		case "start scan":
 			scan.init();
 			break;
 	}
@@ -86,7 +74,7 @@ var recentLines = { // lines display obj
 	domLines: document.getElementById("recentLines"),
 
 	add: function(newLine){
-		if(this.lines.push(newLine) > 15){
+		if(this.lines.push(newLine) > 30){
 			this.lines.splice(0, 1);
 		}
 		this.domLines.innerHTML = ""; // clear it
@@ -175,14 +163,6 @@ function saveData(){
 	}
 }
 
-function loadData(){
-	recentLines.add("THR3: loading not implemented atm");
-}
-
-function loadScanPatter(){
-	recentLines.add("THR3: loading scans not implemented atm");
-}
-
 // ----------------------------------------------------------------------------------------------- SCAN MANAGEMENT
 
 var scanPattern;
@@ -201,46 +181,61 @@ function loadJSON(callback){
 
 loadJSON(function(response){
 	scanPattern = JSON.parse(response);
-	console.log(scanPattern[0]);
-	console.log(scanPattern.length);
+	console.log("scanPattern Loaded, length: " + scanPattern.length);
 });
 
 var scan = {
 
 	"isRunning": false,
 
-	"scanIndices": [],
+	"scanPosition": 0, // index of current point in scanPattern 
+
+	prepare: function(){
+		console.log("load scan...");
+		recentLines.add("THR3: Perparing Scan ...");
+		console.log(scanPattern);
+	},
 
 	init: function(){
 		this.isRunning = true;
 		recentLines.add("THR3: Scanning...");
 		this.doNextPoint();
-		console.log("SCAN INIT: " + scanPattern);
 	},
 
 	doNextPoint: function(){
-		if(this.scanIndices.length > scanPattern.length){
-			recentLines.add("THR3: Scan complete")
-			this.isRunning = false;
-			saveData();
-		} else if (this.scanIndices.length < 1) { // this can only run once per scan
-			this.scanIndices.push(0); // initialize
+		if(this.isRunning){
+			while(this.doBoundsCheck(scanPattern[this.scanPosition].x, scanPattern[this.scanPosition].y)){
+				recentLines.add("THR3: Throwing point: due to OOB");
+				console.log("throwing point" + this.scanPosition + "due to OOB");
+				this.scanPosition ++;
+			}
+			var nextA = scanPattern[this.scanPosition].x;
+			console.log(nextA);
+			var nextB = scanPattern[this.scanPosition].y;
+			console.log(nextB);
+			socket.send("MS" + "A" + nextA + "B" + nextB);
+			this.scanPosition ++; // done here, next serial-recept with letter 'S' will trigger this f'n again
+
+			if(this.scanPosition >= scanPattern.length){
+				this.isRunning = false;
+			}
+			// setup wait
 		} else {
-			this.scanIndices[this.scanIndices.length] = this.scanIndices.length;
-			console.log("pushed new");
-			console.log(this.scanIndices.length);
+			this.finish();
 		}
-		socket.send("MS" + "A" + scanPattern[this.scanIndices[0]].x + "B" + "20");//scanPattern[this.scanIndices[0]].y); // should have a, b structure in scanPattern
+	},
+
+	finish: function(){
+		recentLines.add("THR3: Scan is complete ")
 	},
 
 	doBoundsCheck: function(a,b){
-		var aBounds = [-95, 95];
+		var aBounds = [0, 360];
 		var bBounds = [-120, 120];
-
 		if(a < aBounds[0] || a > aBounds[1] || b < bBounds [0] || b > bBounds[1]){
-			return false;
-		} else {
 			return true;
+		} else {
+			return false;
 		}
 	},
 }
@@ -286,7 +281,7 @@ function initThree(){
 	// werld
 
 	scene = new THREE.Scene();
-	scene.background = new THREE.Color( 0xfafafa );
+	scene.background = new THREE.Color( 0x8a8a8a );
 
 	var geometry = new THREE.BoxGeometry( 1, 1, 1 );
 	var material = new THREE.MeshBasicMaterial( { color: 0xcccccc } );
