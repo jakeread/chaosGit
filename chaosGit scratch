@@ -1,13 +1,9 @@
-- scan object...
-	- clarify, display points not-scanned, point-scanning, point-updating
-	- 'load scan'
-	- 'do scan'
-		- homes,
-		- 1st point,
-		- doNextPoint
+- code improvement phase
+	- shortest-next-point algorithm
+	- auto temperature average, colouring, redrawing w/ chart
 
 - document codes
-- .. objectify both? pls?
+	- .. objectify both? pls?
 
 - business trix
 	- talk strategy with Forrest

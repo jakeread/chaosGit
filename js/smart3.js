@@ -96,14 +96,10 @@ function dataPoint(data){ // writes points on receipt of M-messages
 	var distance = parseFloat(data.slice(data.indexOf("D")+1, data.indexOf("R")));
 	var radiant = parseFloat(data.slice(data.indexOf("R")+1, data.length));
 
-	var x = Math.sin(Math.radians(b))*Math.cos(Math.radians(-a));
-	var y = Math.sin(Math.radians(b))*Math.sin(Math.radians(-a));
-	var z = Math.cos(Math.radians(b));
-
 	var pos = {
-		"x": -distance*x*1,
-		"y": -distance*z*1,
-		"z": distance*y*1
+		"x": distance*Math.cos(Math.radians(b))*Math.cos(Math.radians(a)),
+		"y": distance*Math.cos(Math.radians(b))*Math.sin(Math.radians(a)),
+		"z": Math.sin(Math.radians(b))*distance
 	};
 
 	var tempColour = mapTemp(radiant);
@@ -170,7 +166,7 @@ var scanPattern;
 function loadJSON(callback){
 	var xobj = new XMLHttpRequest();
 	xobj.overrideMimeType("application/json");
-	xobj.open('GET', './scanParams/pyOutTest.json', true);
+	xobj.open('GET', './scanParams/6v-scanPoints.json', true);
 	xobj.onreadystatechange = function(){
 		if(xobj.readyState == 4 && xobj.status == "200"){
 			callback(xobj.responseText);
@@ -204,14 +200,14 @@ var scan = {
 
 	doNextPoint: function(){
 		if(this.isRunning){
-			while(this.doBoundsCheck(scanPattern[this.scanPosition].x, scanPattern[this.scanPosition].y)){
+			while(this.doBoundsCheck(scanPattern[this.scanPosition].a, scanPattern[this.scanPosition].b)){
 				recentLines.add("THR3: Throwing point: due to OOB");
 				console.log("throwing point" + this.scanPosition + "due to OOB");
 				this.scanPosition ++;
 			}
-			var nextA = scanPattern[this.scanPosition].x;
+			var nextA = scanPattern[this.scanPosition].a;
 			console.log(nextA);
-			var nextB = scanPattern[this.scanPosition].y;
+			var nextB = scanPattern[this.scanPosition].b;
 			console.log(nextB);
 			socket.send("MS" + "A" + nextA + "B" + nextB);
 			this.scanPosition ++; // done here, next serial-recept with letter 'S' will trigger this f'n again
@@ -226,12 +222,13 @@ var scan = {
 	},
 
 	finish: function(){
+		socket.send("A0B0");
 		recentLines.add("THR3: Scan is complete ")
 	},
 
 	doBoundsCheck: function(a,b){
-		var aBounds = [0, 360];
-		var bBounds = [-120, 120];
+		var aBounds = [-5, 365];
+		var bBounds = [-95, 90];
 		if(a < aBounds[0] || a > aBounds[1] || b < bBounds [0] || b > bBounds[1]){
 			return true;
 		} else {
@@ -260,7 +257,11 @@ function initThree(){
 	// camera
 
 	camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 1000);
-	camera.position.z = 20;
+	camera.position.x = 5;
+	camera.position.y = -5;
+	camera.position.z = 5;
+	camera.lookAt(0,0,0);
+	camera.up.set(0,0,1);
 
 	controls = new THREE.TrackballControls(camera, container);
 
@@ -283,12 +284,9 @@ function initThree(){
 	scene = new THREE.Scene();
 	scene.background = new THREE.Color( 0x8a8a8a );
 
-	var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-	var material = new THREE.MeshBasicMaterial( { color: 0xcccccc } );
-	material.transparent = true;
-	material.opacity = 0.5;
-	var cube = new THREE.Mesh( geometry, material );
-	scene.add( cube );
+	var origin = new THREE.AxisHelper( 1 ); 
+	origin.position.set(0,0,0);
+	scene.add( origin );
 
 	// renderer
 
@@ -340,7 +338,7 @@ function threeAddNewPoint(dataPoint){
 	var pointColor = new THREE.Color();
 	pointColor.setRGB(dataPoint.tc.r, dataPoint.tc.g, dataPoint.tc.b);
 
-	var pointMaterial = new THREE.PointsMaterial({color: pointColor, size: 0.5})
+	var pointMaterial = new THREE.PointsMaterial({color: pointColor, size: 0.1})
 
 	var pointField = new THREE.Points( pointGeometry, pointMaterial );
 

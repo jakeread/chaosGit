@@ -13,7 +13,7 @@ AccelStepper stepperB(AccelStepper::DRIVER, 11, 10);
 #define stepsPerDegA 50.1
 #define stepsPerDegB 36 // (16/numTeeth * 200*microStep) / 360
 #define degWhenHomedA -10
-#define degWhenHomedB 50
+#define degWhenHomedB -45
 #define stepHomeSpeed 1000
 boolean stepEnabled = false;
 
@@ -266,7 +266,7 @@ void executeBlock(){
     command.replyString += "B";
     command.replyString += String(stepperB.currentPosition()/stepsPerDegB);
     command.replyString += "D";
-    command.replyString += String(10.0);//command.replyString += String(measureDistance());
+    command.replyString += String(measureDistance());
     command.replyString += "R";
     command.replyString += String(mlx.readObjectTempC());
   }
@@ -300,6 +300,7 @@ void wipeCommand(){
 
 void initSteppers() {
   pinMode(stepEnA, OUTPUT);
+  stepperA.setPinsInverted(true, false, false);
   pinMode(stepEnB, OUTPUT);
   stepperA.setMaxSpeed(2000);
   stepperA.setAcceleration(5000);
@@ -364,7 +365,7 @@ void homeSteppers() {
 }
 
 void goToDegA(float deg, bool wait) {
-  if (deg > 360 || deg < 0) {
+  if (deg > 720 || deg < -720) {
     Serial.print("OOB on A: ");
     Serial.println(deg);
   }
@@ -378,7 +379,7 @@ void goToDegA(float deg, bool wait) {
 }
 
 void goToDegB(float deg, bool wait) {
-  if (deg > 120 || deg < -120) {
+  if (deg > 360 || deg < -360) {
     Serial.print("OOB on B: ");
     Serial.println(deg);
   }
