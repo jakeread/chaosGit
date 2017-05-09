@@ -10,11 +10,15 @@ AccelStepper stepperB(AccelStepper::DRIVER, 11, 10);
 #define stepEnB 12
 #define stepLimitA 7
 #define stepLimitB 8
-#define stepsPerDegA 50.1
-#define stepsPerDegB 36 // (16/numTeeth * 200*microStep) / 360
+#define stepsPerDegA 46.8
+#define stepsPerDegB 34.37 // (16/numTeeth * 200*microStep) / 360
 #define degWhenHomedA -10
 #define degWhenHomedB -45
 #define stepHomeSpeed 1000
+#define STEP_A_MAXSPEED 4000
+#define STEP_A_MAXACCEL 12000
+#define STEP_B_MAXSPEED 3000
+#define STEP_B_MAXACCEL 9000
 boolean stepEnabled = false;
 
 #define debug false
@@ -302,10 +306,10 @@ void initSteppers() {
   pinMode(stepEnA, OUTPUT);
   stepperA.setPinsInverted(true, false, false);
   pinMode(stepEnB, OUTPUT);
-  stepperA.setMaxSpeed(2000);
-  stepperA.setAcceleration(5000);
-  stepperB.setMaxSpeed(1500);
-  stepperB.setAcceleration(8000);
+  stepperA.setMaxSpeed(STEP_B_MAXSPEED);
+  stepperA.setAcceleration(STEP_A_MAXACCEL);
+  stepperB.setMaxSpeed(STEP_B_MAXSPEED);
+  stepperB.setAcceleration(STEP_B_MAXACCEL);
   enableSteppers();
   pinMode(stepLimitA, INPUT);
   pinMode(stepLimitB, INPUT);
@@ -370,6 +374,7 @@ void goToDegA(float deg, bool wait) {
     Serial.println(deg);
   }
   int steps = round(deg * stepsPerDegA);
+  stepperA.setSpeed(STEP_A_MAXSPEED);
   stepperA.moveTo(steps);
   if(wait){
     while (stepperA.distanceToGo() != 0) {
@@ -384,6 +389,7 @@ void goToDegB(float deg, bool wait) {
     Serial.println(deg);
   }
   int steps = round(deg * stepsPerDegB);
+  stepperB.setSpeed(STEP_B_MAXSPEED);
   stepperB.moveTo(steps);
   if(wait){
     while (stepperB.distanceToGo() != 0) {

@@ -140,7 +140,7 @@ function threeNewPoints(){
 function initThreePointCloud(){
 
 	// we'll make a lot, only display those we have data for
-	numPoints = 1024; 
+	numPoints = 8192; 
 
 	// geometry object
 	var pointCloudGeometry = new THREE.BufferGeometry();
