@@ -1,6 +1,6 @@
-- code improvement phase
-	- shortest-next-point algorithm
-	- auto temperature average, colouring, redrawing w/ chart
+- atm, prior to measure-everywhere
+	- do rectangular-scan pattern
+	- check / confirm steps / axis
 
 - document codes
 	- .. objectify both? pls?
