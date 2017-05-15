@@ -16,15 +16,12 @@ function dataPoint(data){ // writes points on receipt of M-messages
 		"z": Math.sin(Math.radians(b))*distance
 	};
 
-	var tempColour = mapTemp(radiant);
-
 	var theDataPoint = {
 		"a": a,
 		"b": b,
 		"distance": distance,
 		"radiant": radiant,
 		"pos": pos,
-		"tc": tempColour
 	};
 
 	if(debug){console.log(theDataPoint);}
@@ -37,6 +34,6 @@ function saveData(){
 	} else {
 		recentLines.add("THR3: saving data...");
 		var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataPoints));
-		recentLines.add("THR3: " + '<a href="data:' + data + '" download="data.json">Download JSON</a>');
+		recentLines.add("THR3: " + '<a href="data:' + data + '" download="data.json">Download JSON</a>'); // auto-name with date
 	}
 }

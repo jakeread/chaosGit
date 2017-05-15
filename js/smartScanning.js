@@ -6,7 +6,7 @@ var scanPattern;
 function loadJSON(callback){
 	var xobj = new XMLHttpRequest();
 	xobj.overrideMimeType("application/json");
-	xobj.open('GET', './scanParams/5deg-rectang-scanPoints.json', true);
+	xobj.open('GET', './scanParams/6v-scanPoints.json', true); // /scanParams/6v-scanPoints.json /scanParams/5deg-rectang-scanPoints.json
 	xobj.onreadystatechange = function(){
 		if(xobj.readyState == 4 && xobj.status == "200"){
 			callback(xobj.responseText);
@@ -18,11 +18,11 @@ function loadJSON(callback){
 loadJSON(function(response){
 	scanPattern = JSON.parse(response);
 	console.log("scanPattern Loaded, length: " + scanPattern.length);
-	/* nosort bc rectang is already sorted
+	///* nosort bc rectang is already sorted
 	scanPattern.sort(function(a,b){ // the basic of basics sort -> should optimize in 2d :/
 		return a.a-b.a;
 	})
-	*/
+	// */
 	console.log("scanPattern sorted");
 });
 
@@ -72,7 +72,7 @@ var scan = {
 
 	doBoundsCheck: function(a,b){
 		var aBounds = [-5, 365];
-		var bBounds = [-95, 90];
+		var bBounds = [-95, 95];
 		if(a < aBounds[0] || a > aBounds[1] || b < bBounds [0] || b > bBounds[1]){
 			return true;
 		} else {

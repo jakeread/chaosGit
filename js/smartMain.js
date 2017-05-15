@@ -27,7 +27,7 @@ function newData(result) {
 		if(debug){console.log("in M-message");}
 		var dtp = dataPoint(theData); // dataPoint returns object
 		dataPoints.push(dtp); // puts object in array of objects
-		threeNewPoints(dtp); // three updates the set of points now
+		threeNewPoints(); // three updates the set of points now
 	}
 }
 

@@ -53,7 +53,7 @@ function initThree(){
 
 	// renderer
 
-	renderer = new THREE.WebGLRenderer({antialias: false});
+	renderer = new THREE.WebGLRenderer({antialias: true});
 	renderer.setSize(width, height);
 
 	container = document.getElementById('container');
