@@ -7,14 +7,15 @@ More information available here: www.smart.princeton.edu
 
 **Node.js** for pipe.js & lstprts.js
 - Available here: https://nodejs.org/en/download/
-#####Setup:
+
+##### Setup:
 - `npm install serialport`
 - `npm install --save ws`
 - `cd /<path-to-this-repo>/nodeCom`
 - `node main.js`
 - run `node lstprts.js` to list all usb ports. Select the correct name and update `pipe.js` port name variable accordingly.
 
-##Usage:
+## Usage:
 - Run `node pipe`
     - Will get `PIPE: Serialport Error` if USB is not connected
 - Open `index.html` in browser
@@ -22,7 +23,7 @@ More information available here: www.smart.princeton.edu
 - Run commands using console in browser
     - See commands documentation below
 
-###Commands:
+### Commands:
 - `L`: Toggle laser on or off
 - `H`: Move to home position
 - `A<Degree>`: Move servo A (rotates around vertical axis) to the position indicated by <Degree>
@@ -32,7 +33,7 @@ More information available here: www.smart.princeton.edu
 - `start scan`: will begin a scan using the scan pattern set in `smartScanning.js`
 - `load scan`: select a scan pattern (To be implemented)
 
-##Todo:
+## Todo:
 1. Select scan pattern through UI
 2. Improve serial communication
 3. Save / Read JSON, CSV
