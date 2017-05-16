@@ -43,6 +43,7 @@ More information available here: https://smart.princeton.edu/
 1. Select scan pattern through UI
 2. Improve serial communication
 3. Save / Read JSON, CSV
-4. Improve coloring of points
+4. ~~Improve coloring of points~~
+5. ~~Load completed scans into browser visualizer~~
 5. Do MRT Calculation in-interface
 6. Improve Homing Routine in Smart Machine
