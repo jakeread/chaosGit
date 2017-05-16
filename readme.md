@@ -1,11 +1,11 @@
 ## Repo for S.M.A.R.T Sensor
-More information available here: www.smart.princeton.edu
+More information available here: https://smart.princeton.edu/
 
 ## Installation:
 **Teensyduino** for arduino control and sensor readings
 - Available here: https://www.pjrc.com/teensy/td_download.html
 
-**Node.js** for pipe.js & lstprts.js
+**Node.js** for `pipe.js` & `lstprts.js`
 - Available here: https://nodejs.org/en/download/
 
 #### Setup:
