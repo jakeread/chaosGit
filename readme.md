@@ -35,9 +35,12 @@ More information available here: https://smart.princeton.edu/
 - `M`: Take a complete measurement at current position, point will be added to dataset
 - `R`: Take a mylexis reading at current position
 - `D`: Take a lidar reading at current position
-- `start scan`: will begin a scan using the scan pattern set in `js/jsmartScanning.js`
+- `start scan`: will begin a scan using the current scan pattern
 - `load scan <scan name>`: load a scan JSON into browser visualization. Scans should be stored in the `completedScans` directory.
     - For example: `load scan f1rst-6v-2017_05_05-studioLABIA.json`
+- `load pattern <pattern name>`: load a scan pattern for future scans. Scan patterns should be stored in the `scanParams` directory.
+    - For example: `load pattern 6v-scanPoints.json`
+    - If this command is not run the default pattern is set in `js/smartScanning.js`
 
 ## Todo:
 1. Select scan pattern through UI
