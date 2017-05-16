@@ -6,9 +6,9 @@ var scanPattern;
 function loadJSON(callback){
 	var xobj = new XMLHttpRequest();
 	xobj.overrideMimeType("application/json");
-	xobj.open('GET', './scanParams/6v-scanPoints.json', true); // /scanParams/6v-scanPoints.json /scanParams/5deg-rectang-scanPoints.json
+	xobj.open('GET', './scanParams/6v-scanPoints.json', true);
 	xobj.onreadystatechange = function(){
-		if(xobj.readyState == 4 && xobj.status == "200"){
+		if(xobj.readyState == 4){
 			callback(xobj.responseText);
 		}
 	}
@@ -30,7 +30,7 @@ var scan = {
 
 	"isRunning": false,
 
-	"scanPosition": 0, // index of current point in scanPattern 
+	"scanPosition": 0, // index of current point in scanPattern
 
 	prepare: function(){
 		console.log("load scan...");
@@ -45,12 +45,15 @@ var scan = {
 	},
 
 	doNextPoint: function(){
+		recentLines.add("Doing next point");
+		recentLines.add("isRunning is: " + this.isRunning);
 		if(this.isRunning){
 			while(this.doBoundsCheck(scanPattern[this.scanPosition].a, scanPattern[this.scanPosition].b)){
 				recentLines.add("THR3: Throwing point: due to OOB");
 				console.log("throwing point" + this.scanPosition + "due to OOB");
 				this.scanPosition ++;
 			}
+			recentLines.add("Below while loop");
 			var nextA = scanPattern[this.scanPosition].a;
 			var nextB = scanPattern[this.scanPosition].b;
 			socket.send("MS" + "A" + nextA + "B" + nextB);

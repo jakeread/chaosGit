@@ -25,14 +25,14 @@ function parseLineIn(data){
 
 var serialport = require('serialport'),
 	SerialPort = serialport,
-	portname = '/dev/ttyACM0'; //'COM9'; // to do direct
+	portname = '/dev/cu.usbmodem2601641'; //'COM9'; // to do direct
 	//process.argv[2]; // to read serial port name from command line
 
-var myPort = new SerialPort(portname, { 
+var myPort = new SerialPort(portname, {
 	baudrate: 115200,
 	dataBits: 8,
 	parity: 'none',
-	flowControl: false, 
+	flowControl: false,
 	parser: serialport.parsers.readline("\r\n") // sets readline function to call only when new line
 });
 
@@ -75,23 +75,23 @@ wss.on('connection', handleConnection);
 function handleConnection(client) {
 	console.log("PIPE: wss new connection");
 	connections.push(client); // add client to connections array
-	
+
 	client.on('message', writeToPort); // when we get a message, parse & do stuff
-	
+
 	client.on('close', function() {
 		console.log("PIPE: wss connection closed");
 		var position = connections.indexOf(client); // index of connection in array of connections
 		connections.splice(position, 1); // remove from array
 	});
 }
-	
+
 function sendData(data){ // To WebSocket, per connection
 	for (connection in connections){ // plurals!
 		if(debug){console.log("PIPE: sent to connection #: " + connection + " this data: " + data);}
 		connections[connection].send(data);
 	}
 }
-	
+
 function publish(data){ // To WebSocket, all connections
 	if(debug){console.log("PIPE: sentToWeb: "+data);}
 	if (connections.length > 0) {
