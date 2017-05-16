@@ -8,7 +8,7 @@ More information available here: www.smart.princeton.edu
 **Node.js** for pipe.js & lstprts.js
 - Available here: https://nodejs.org/en/download/
 
-##### Setup:
+#### Setup:
 - `npm install serialport`
 - `npm install --save ws`
 - `cd /<path-to-this-repo>/nodeCom`
@@ -23,13 +23,14 @@ More information available here: www.smart.princeton.edu
 - Run commands using console in browser
     - See commands documentation below
 
-### Commands:
+#### Commands:
 - `L`: Toggle laser on or off
 - `H`: Move to home position
 - `A<Degree>`: Move servo A (rotates around vertical axis) to the position indicated by <Degree>
     - For example: `A10` will move A to 10 degrees from the normal
 - `B<Degree>`: Move servo B (rotates around horizontal axis) to the position indicated by <Degree>
     - For example: `B80` will move B to 80 degrees from the normal
+- `M`: Take a measurement at current position
 - `start scan`: will begin a scan using the scan pattern set in `smartScanning.js`
 - `load scan`: select a scan pattern (To be implemented)
 
