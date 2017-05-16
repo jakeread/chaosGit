@@ -3,50 +3,56 @@
 #include <Metro.h>
 #include "cmdStruct.h"
 
-//steppers
+// --------------------------------------------------------- @ Section GLOBALS
+
+// -------------- @ Subsection Misc Globals
+
+Metro hanger = Metro(25); // this is a check-based timer, used to flash status LED
+
+#define debug false   // set 'true' for verbose serial responses
+
+#define statusLed 13  // Teensy LED Pin
+
+#define lzr 14        // Switch for Laser Pointer
+
+// -------------- @ Subsection Serial Globals
+
+CMD command;          // the CMD Struct
+String buffString;    // the String we buffer chars into until '\n' 
+
+// -------------- @ Subsection Stepper Globals
+
 AccelStepper stepperA(AccelStepper::DRIVER, 6, 5);
 AccelStepper stepperB(AccelStepper::DRIVER, 11, 10);
+
 #define stepEnA 9
 #define stepEnB 12
 #define stepLimitA 7
 #define stepLimitB 8
+
 #define stepsPerDegA 46.8
 #define stepsPerDegB 34.37 // (16/numTeeth * 200*microStep) / 360
+
 #define degWhenHomedA -10
 #define degWhenHomedB -45
 #define stepHomeSpeed 1000
+
 #define STEP_A_MAXSPEED 4000
 #define STEP_A_MAXACCEL 12000
 #define STEP_B_MAXSPEED 3000
 #define STEP_B_MAXACCEL 9000
+
 boolean stepEnabled = false;
 
-#define debug false
+// -------------- @ Subsection Sensor Globals
 
-//mlx
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
 
-//lidar
 unsigned long pulseWidth;
 #define lidarMode 16
 #define lidarMonitor 15L
 
-
-//flashing lights
-#define statusLed 13
-
-//laser beam
-#define lzr 14
-
-// command business
-CMD command; 
-String buffString;
-// singular instance of command struct
-// were we doing this properly, a buffer of these ! alas
-
-
-// timer, to c if u hang 10
-Metro hanger = Metro(25);
+// --------------------------------------------------------- @ Section SETUP LOOP
 
 void setup() {
   Serial.begin(115200);
@@ -62,31 +68,53 @@ void setup() {
   initMLX();
 }
 
+  /*
+   * the loop just checks if a serial command is ready to be executed
+   * serial commands are received using the serialEvent() handler below
+   * otherwise it flashes the status led
+   */
+
 void loop() {
   if (command.isReady) {
-    commandDispatch(); // at this point we are one-at-a-time command execution with no buffers :|
+    commandDispatch(); 
   }
   if (hanger.check() == 1) {
     flash(statusLed);
   }
 }
 
-// ----------------- SERIAL
+// --------------------------------------------------------- @ Section SERIAL
+
+/*
+ * the Arduino system calls this function whenever a new byte
+ * is available on the serial port
+ * 
+ * NOTE: if no newline character is received - i.e. if you have line-endings
+ * set up incorrectly in a terminal, command.isReady will never be true,
+ * and nothing will happen!
+ */
 
 void serialEvent() {
   while (Serial.available()) {
-    char inChar = (char)Serial.read(); // store new byte
-    if (inChar == '\n') { // trigger end of commands
-      command.isReady = true;
-      break; // ready no further lines, do not add \n to command string. no need.
+    char inChar = (char)Serial.read();  // store new byte (chars are also 8-bit)
+    if (inChar == '\n') {               // if char is 'newline'
+      command.isReady = true;           // set ready-to-read command
+      break; 
     }
-    command.ogString += inChar; // add to command
+    command.ogString += inChar;         // otherwise, add char to the command string
   }
 }
 
-void flash(int pin) {
-  digitalWrite(pin, !digitalRead(pin));
-}
+  /*
+   * Called from the loop once command.isReady is true
+   * (1) first, uses ripCommands() to turn strings into CMDPairs (pairs of command codes (chars) and values (floats) see cmdStruct.h)
+   * (2) then, per CMDPair, uses pairSetup(); to do necessary prep-work for comman execution
+   * (3) once setup, runs executeBlock() to: wait for steppers, read sensors, write reply string etc
+   * (4) finally: wipeCommand() clears the CMD struct out so that it can be re-used next time a command comes through the pipe
+   * 
+   * ** IMPORTANT Note: because we are not buffering commands, if new chars come down the serial while
+   * this is executing (say, waiting for steppers to finish moving), they will be added to the command.ogString and will get lost!
+   */
 
 void commandDispatch() {
   
@@ -105,6 +133,10 @@ void commandDispatch() {
   executeBlock();
   wipeCommand();
 }
+
+  /*
+   * walks through String and breaks down into Chars & Numbers
+   */
 
 void ripCommands() {
   int charNum = 0;
@@ -135,6 +167,11 @@ void ripCommands() {
   command.wasExecuted = false;
   if(false){printCommand();}
 }
+
+  /*
+   * utility for printing the parsed command back onto the serial
+   * useful for debugging the function above
+   */
 
 void printCommand(){
   Serial.println(" ");
@@ -300,7 +337,7 @@ void wipeCommand(){
   }
 }
 
-// ----------------- STEPPERS
+// --------------------------------------------------------- @ Section STEPPERS
 
 void initSteppers() {
   pinMode(stepEnA, OUTPUT);
@@ -328,6 +365,59 @@ void disableSteppers() {
   stepEnabled = false;
   Serial.println("Steppers Disabled");
 }
+
+// -------------- @ Subsection STEPPER GOTO
+
+  /*
+   * the AccelStepper library does not implement an interrupt-based 
+   * step timer. this means the system has to be told to check whether enough
+   * time has past (since the last step) that it should make another step.
+   * this is what the .run() function does.
+   * 
+   * the following two functions implement this method: they set a new
+   * target position to .moveTo(steps), and hold in a while-loop, performing the
+   * step-check until the position is reached
+   */
+
+void goToDegA(float deg, bool wait) {
+  if (deg > 720 || deg < -720) {
+    Serial.print("OOB on A: ");
+    Serial.println(deg);
+  }
+  int steps = round(deg * stepsPerDegA);
+  stepperA.setSpeed(STEP_A_MAXSPEED);
+  stepperA.moveTo(steps);
+  if(wait){
+    while (stepperA.distanceToGo() != 0) {
+      stepperA.run();
+    }
+  }
+}
+
+void goToDegB(float deg, bool wait) {
+  if (deg > 360 || deg < -360) {
+    Serial.print("OOB on B: ");
+    Serial.println(deg);
+  }
+  int steps = round(deg * stepsPerDegB);
+  stepperB.setSpeed(STEP_B_MAXSPEED);
+  stepperB.moveTo(steps);
+  if(wait){
+    while (stepperB.distanceToGo() != 0) {
+      stepperB.run();
+    }
+  }
+}
+
+  /*
+   * HOMING is a mess, and does not work to a satisfactory level
+   * TODO:  -> make sure degWhenHomedA,B is correct (this is the offset between switch-on degrees and '0' degrees
+   *        -> carefully plan homing logic, considering
+   *          - what happens when homing routine starts and the switch is already on? should back-off and re-approach
+   *          - what happens when homing winds >180 degrees from starting position, indicating it is likely one full rotation from 'true' home
+   *          - what happens on switch error, when homing winds >360 deg and no position is found?
+   *          - etc... 
+   */
 
 void homeSteppers() {
   // home A
@@ -368,37 +458,9 @@ void homeSteppers() {
   goToDegB(0, true);
 }
 
-void goToDegA(float deg, bool wait) {
-  if (deg > 720 || deg < -720) {
-    Serial.print("OOB on A: ");
-    Serial.println(deg);
-  }
-  int steps = round(deg * stepsPerDegA);
-  stepperA.setSpeed(STEP_A_MAXSPEED);
-  stepperA.moveTo(steps);
-  if(wait){
-    while (stepperA.distanceToGo() != 0) {
-      stepperA.run();
-    }
-  }
-}
+// --------------------------------------------------------- @ Section SENSORS
 
-void goToDegB(float deg, bool wait) {
-  if (deg > 360 || deg < -360) {
-    Serial.print("OOB on B: ");
-    Serial.println(deg);
-  }
-  int steps = round(deg * stepsPerDegB);
-  stepperB.setSpeed(STEP_B_MAXSPEED);
-  stepperB.moveTo(steps);
-  if(wait){
-    while (stepperB.distanceToGo() != 0) {
-      stepperB.run();
-    }
-  }
-}
-
-// ----------------- LIDAR
+// -------------- @ Subsection LIDAR
 
 void initLidar() {
   pinMode(lidarMode, OUTPUT);
@@ -415,18 +477,22 @@ float measureDistance() {
   return distance;
 }
 
-// ----------------- MLX
+// -------------- @ Subsection MLX
 
 void initMLX() {
   mlx.begin();
 }
 
-// ---------------- SWITCHES
+// -------------- @ Subsection SWITCHES
 
 void initSwitches() {
   pinMode(statusLed, OUTPUT);
   pinMode(lzr, OUTPUT);
   digitalWrite(lzr, LOW);
+}
+
+void flash(int pin) {
+  digitalWrite(pin, !digitalRead(pin));
 }
 
 
