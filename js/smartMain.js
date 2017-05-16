@@ -16,7 +16,7 @@ function closeSocket() {
 	console.log("Socket Closed")
 }
 
-function newData(result) {  
+function newData(result) {
 	var theData = result.data;
 	if(debug){console.log("js newData:" + theData);}
 	recentLines.add("SNSR: " + theData);
