@@ -16,7 +16,7 @@ initThreePointCloud();
 animate();
 
 function initThree(){
-	
+
 	// camera
 
 	camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 1000);
@@ -33,7 +33,7 @@ function initThree(){
 	controls.panSpeed = 1.2;
 
 	controls.noZoom = false;
-	controls.noPan = false;	
+	controls.noPan = false;
 
 	controls.staticMoving = true;
 	controls.dynamicDampingFactor = 0.3;
@@ -47,7 +47,7 @@ function initThree(){
 	scene = new THREE.Scene();
 	scene.background = new THREE.Color( 0xdcdcdc );
 
-	var origin = new THREE.AxisHelper( 1 ); 
+	var origin = new THREE.AxisHelper( 1 );
 	origin.position.set(0,0,0);
 	scene.add( origin );
 
@@ -79,7 +79,7 @@ function onWindowResize(){
 
 function animate(){
 	requestAnimationFrame(animate);
-	controls.update();	
+	controls.update();
 }
 
 function render(){
@@ -89,7 +89,7 @@ function render(){
 var maxmax = 45;
 var minmin = 10;
 
-function threeNewPoints(){  
+function threeNewPoints(){
 
 	var alphas = cloud.geometry.attributes.alpha;
 	var count = alphas.count;
@@ -140,7 +140,7 @@ function threeNewPoints(){
 function initThreePointCloud(){
 
 	// we'll make a lot, only display those we have data for
-	numPoints = 8192; 
+	numPoints = 8192;
 
 	// geometry object
 	var pointCloudGeometry = new THREE.BufferGeometry();
@@ -198,9 +198,9 @@ function mapTemp(low, high, eval) { // used by dataPoint to build temp->color
 
 	var r, g, b; // for colours
 
-	r = Math.map(eval, tempLow, tempHigh, 0, 1); // THREE dishes RGB's 0-1 when writing direct to buffer
+	r = Math.map(eval, tempMid, tempHigh, 0, 1); // THREE dishes RGB's 0-1 when writing direct to buffer
 
-    if (eval > tempMid) { 
+    if (eval > tempMid) {
 		g = Math.map(eval, tempMid, tempHigh, 1, 0);
 	} else if (eval < tempMid) {
 		g = Math.map(eval, tempLow, tempMid, 0, 1);
@@ -208,7 +208,7 @@ function mapTemp(low, high, eval) { // used by dataPoint to build temp->color
 		g = 0;
 	}
 
-	b = Math.map(eval, tempLow, tempHigh, 1, 0);
+	b = Math.map(eval, tempLow, tempMid, 1, 0);
 
 	var tempColour = {
 		"r": r,
