@@ -26,12 +26,16 @@ More information available here: https://smart.princeton.edu/
 #### Commands:
 - `L`: Toggle laser on or off
 - `H`: Move to home position
+- `C`: Disables stepper motors
+- `E`: Enables stepper motors
 - `A<Degree>`: Move servo A (rotates around vertical axis) to the position indicated by <Degree>
     - For example: `A10` will move A to 10 degrees from the normal
 - `B<Degree>`: Move servo B (rotates around horizontal axis) to the position indicated by <Degree>
     - For example: `B80` will move B to 80 degrees from the normal
-- `M`: Take a measurement at current position
-- `start scan`: will begin a scan using the scan pattern set in `smartScanning.js`
+- `M`: Take a complete measurement at current position, point will be added to dataset
+- `R`: Take a mylexis reading at current position
+- `D`: Take a lidar reading at current position
+- `start scan`: will begin a scan using the scan pattern set in `js/jsmartScanning.js`
 - `load scan`: select a scan pattern (To be implemented)
 
 ## Todo:
@@ -39,4 +43,5 @@ More information available here: https://smart.princeton.edu/
 2. Improve serial communication
 3. Save / Read JSON, CSV
 4. Improve coloring of points
-
+5. Do MRT Calculation in-interface
+6. Improve Homing Routine in Smart Machine
