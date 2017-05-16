@@ -3,6 +3,21 @@
 
 var scanPattern;
 
+function loadPattern(path){
+	var response;
+	var xobj = new XMLHttpRequest();
+	xobj.overrideMimeType("application/json");
+	var filePath = './scanParams/'+path;
+
+	xobj.open('GET', filePath, true);
+	xobj.onreadystatechange = function(){
+		if(xobj.readyState == 4){
+			scanPattern = JSON.parse(xobj.responseText);
+		}
+	}
+	xobj.send(null);
+}
+
 function loadJSON(callback){
 	var xobj = new XMLHttpRequest();
 	xobj.overrideMimeType("application/json");

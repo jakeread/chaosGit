@@ -39,6 +39,9 @@ function handleCommands(input){
 		var path = input.substring(input.indexOf("n") + 2);
 		loadData(path);
 		threeNewPoints();
+	} else if (input.indexOf("load pattern") == 0) {
+		var path = input.substring(input.indexOf("n") + 2);
+		loadPattern(path);
 	} else {
 		switch(input){
 			default:
