@@ -45,8 +45,6 @@ var scan = {
 	},
 
 	doNextPoint: function(){
-		recentLines.add("Doing next point");
-		recentLines.add("isRunning is: " + this.isRunning);
 		if(this.isRunning){
 			while(this.doBoundsCheck(scanPattern[this.scanPosition].a, scanPattern[this.scanPosition].b)){
 				recentLines.add("THR3: Throwing point: due to OOB");
