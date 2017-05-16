@@ -5,7 +5,7 @@ More information available here: https://smart.princeton.edu/
 **Teensyduino** for arduino control and sensor readings
 - Available here: https://www.pjrc.com/teensy/td_download.html
 
-**Node.js** for pipe.js & lstprts.js
+**Node.js** for `pipe.js` & `lstprts.js`
 - Available here: https://nodejs.org/en/download/
 
 #### Setup:
