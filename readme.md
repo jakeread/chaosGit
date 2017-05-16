@@ -1,5 +1,5 @@
 ## Repo for S.M.A.R.T Sensor
-More information available here: www.smart.princeton.edu
+More information available here: https://smart.princeton.edu/
 
 ## Installation:
 **Teensyduino** for arduino control and sensor readings
