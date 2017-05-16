@@ -51,7 +51,6 @@ var scan = {
 				console.log("throwing point" + this.scanPosition + "due to OOB");
 				this.scanPosition ++;
 			}
-			recentLines.add("Below while loop");
 			var nextA = scanPattern[this.scanPosition].a;
 			var nextB = scanPattern[this.scanPosition].b;
 			socket.send("MS" + "A" + nextA + "B" + nextB);

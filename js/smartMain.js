@@ -35,19 +35,22 @@ function newData(result) {
 
 function handleCommands(input){
 	if(debug){console.log("js handleCommands: " + input);}
-	switch(input){
-		default:
-			socket.send(input);
-			break;
-		case "save":
-			saveData(dataPoints);
-			break;
-		case "load scan":
-			scan.prepare();
-			break;
-		case "start scan":
-			scan.init();
-			break;
+	if (input.indexOf("load scan") == 0) {
+		var path = input.substring(input.indexOf("n") + 2);
+		loadData(path);
+		threeNewPoints();
+	} else {
+		switch(input){
+			default:
+				socket.send(input);
+				break;
+			case "save":
+				saveData(dataPoints);
+				break;
+			case "start scan":
+				scan.init();
+				break;
+		}
 	}
 	// DO IT WITH EVENTS <------------------
 }

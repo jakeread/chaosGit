@@ -37,3 +37,19 @@ function saveData(){
 		recentLines.add("THR3: " + '<a href="data:' + data + '" download="data.json">Download JSON</a>'); // auto-name with date
 	}
 }
+
+function loadData(path){
+	var response;
+	var xobj = new XMLHttpRequest();
+	xobj.overrideMimeType("application/json");
+	var filePath = './completedScans/'+path;
+
+	xobj.open('GET', filePath, true);
+	xobj.onreadystatechange = function(){
+		if(xobj.readyState == 4){
+			dataPoints = JSON.parse(xobj.responseText);
+			threeNewPoints();
+		}
+	}
+	xobj.send(null);
+}
