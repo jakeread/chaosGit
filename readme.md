@@ -49,3 +49,4 @@ More information available here: https://smart.princeton.edu/
 5. ~~Load completed scans into browser visualizer~~
 5. Do MRT Calculation in-interface
 6. Improve Homing Routine in Smart Machine
+7. Add load JSON error checking

@@ -2,6 +2,8 @@
 // ----------------------------------------------------------------------------------------------- SCAN MANAGEMENT
 
 var scanPattern;
+var startTime;
+var endTime;
 
 function loadPattern(path){
 	var response;
@@ -56,6 +58,7 @@ var scan = {
 	init: function(){
 		this.isRunning = true;
 		recentLines.add("THR3: Scanning...");
+		startTime = new Date().getTime();
 		this.doNextPoint();
 	},
 
@@ -73,6 +76,7 @@ var scan = {
 
 			if(this.scanPosition >= scanPattern.length){
 				this.isRunning = false;
+				endTime = new Date().getTime();
 			}
 			// setup wait
 		} else {
@@ -83,6 +87,7 @@ var scan = {
 	finish: function(){
 		socket.send("A0B0");
 		recentLines.add("THR3: Scan is complete ")
+		recentLines.add("Scan took " + (endTime - startTime)/1000 + " seconds to complete");
 	},
 
 	doBoundsCheck: function(a,b){

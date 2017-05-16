@@ -42,6 +42,7 @@ function handleCommands(input){
 	} else if (input.indexOf("load pattern") == 0) {
 		var path = input.substring(input.indexOf("n") + 2);
 		loadPattern(path);
+		recentLines.add("Pattern loaded");
 	} else {
 		switch(input){
 			default:
