@@ -28,15 +28,16 @@ More information available here: https://smart.princeton.edu/
 - `H`: Move to home position
 - `C`: Disables stepper motors
 - `E`: Enables stepper motors
-- `A<Degree>`: Move servo A (rotates around vertical axis) to the position indicated by <Degree>
+- `A<degree>`: Move servo A (rotates around vertical axis) to the position indicated by <Degree>
     - For example: `A10` will move A to 10 degrees from the normal
-- `B<Degree>`: Move servo B (rotates around horizontal axis) to the position indicated by <Degree>
+- `B<degree>`: Move servo B (rotates around horizontal axis) to the position indicated by <Degree>
     - For example: `B80` will move B to 80 degrees from the normal
 - `M`: Take a complete measurement at current position, point will be added to dataset
 - `R`: Take a mylexis reading at current position
 - `D`: Take a lidar reading at current position
 - `start scan`: will begin a scan using the scan pattern set in `js/jsmartScanning.js`
-- `load scan`: select a scan pattern (To be implemented)
+- `load scan <scan name>`: load a scan JSON into browser visualization. Scans should be stored in the `completedScans` directory.
+    - For example: `load scan f1rst-6v-2017_05_05-studioLABIA.json`
 
 ## Todo:
 1. Select scan pattern through UI
