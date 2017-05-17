@@ -15,9 +15,30 @@ function loadPattern(path){
 	xobj.onreadystatechange = function(){
 		if(xobj.readyState == 4){
 			scanPattern = JSON.parse(xobj.responseText);
+			sortPattern();
 		}
 	}
 	xobj.send(null);
+}
+
+function sortPattern() {
+	var newScanPattern = [];
+	var threshold = 5; // width of path
+	for (var j = 0; j <= 360; j = j + threshold) {
+		var scanPass = [];
+		for (var i = 0; i < scanPattern.length; i++) {
+			if (scanPattern[i].a >= j && scanPattern[i].a < j + threshold) {
+				scanPass = scanPass.concat(scanPattern[i]);
+				console.log(scanPattern[i]);
+			}
+		}
+			console.log("SCAN PASS");
+			console.log(scanPass);
+		for (var k = 0; k < scanPass.length; k++) {
+			newScanPattern = newScanPattern.concat(scanPass[k]);
+		}
+	}
+	scanPattern = newScanPattern;
 }
 
 function loadJSON(callback){
