@@ -29,11 +29,8 @@ function sortPattern() {
 		for (var i = 0; i < scanPattern.length; i++) {
 			if (scanPattern[i].a >= j && scanPattern[i].a < j + threshold) {
 				scanPass = scanPass.concat(scanPattern[i]);
-				console.log(scanPattern[i]);
 			}
 		}
-			console.log("SCAN PASS");
-			console.log(scanPass);
 		for (var k = 0; k < scanPass.length; k++) {
 			newScanPattern = newScanPattern.concat(scanPass[k]);
 		}
@@ -56,11 +53,7 @@ function loadJSON(callback){
 loadJSON(function(response){
 	scanPattern = JSON.parse(response);
 	console.log("scanPattern Loaded, length: " + scanPattern.length);
-	///* nosort bc rectang is already sorted
-	scanPattern.sort(function(a,b){ // the basic of basics sort -> should optimize in 2d :/
-		return a.a-b.a;
-	})
-	// */
+	sortPattern();
 	console.log("scanPattern sorted");
 });
 
