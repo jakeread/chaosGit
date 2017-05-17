@@ -18,7 +18,7 @@ Metro hanger = Metro(25); // this is a check-based timer, used to flash status L
 // -------------- @ Subsection Serial Globals
 
 CMD command;          // the CMD Struct
-String buffString;    // the String we buffer chars into until '\n' 
+String buffString;    // the String we buffer chars into until '\n'
 
 // -------------- @ Subsection Stepper Globals
 
@@ -76,7 +76,7 @@ void setup() {
 
 void loop() {
   if (command.isReady) {
-    commandDispatch(); 
+    commandDispatch();
   }
   if (hanger.check() == 1) {
     flash(statusLed);
@@ -88,7 +88,7 @@ void loop() {
 /*
  * the Arduino system calls this function whenever a new byte
  * is available on the serial port
- * 
+ *
  * NOTE: if no newline character is received - i.e. if you have line-endings
  * set up incorrectly in a terminal, command.isReady will never be true,
  * and nothing will happen!
@@ -99,7 +99,7 @@ void serialEvent() {
     char inChar = (char)Serial.read();  // store new byte (chars are also 8-bit)
     if (inChar == '\n') {               // if char is 'newline'
       command.isReady = true;           // set ready-to-read command
-      break; 
+      break;
     }
     command.ogString += inChar;         // otherwise, add char to the command string
   }
@@ -111,18 +111,18 @@ void serialEvent() {
    * (2) then, per CMDPair, uses pairSetup(); to do necessary prep-work for comman execution
    * (3) once setup, runs executeBlock() to: wait for steppers, read sensors, write reply string etc
    * (4) finally: wipeCommand() clears the CMD struct out so that it can be re-used next time a command comes through the pipe
-   * 
+   *
    * ** IMPORTANT Note: because we are not buffering commands, if new chars come down the serial while
    * this is executing (say, waiting for steppers to finish moving), they will be added to the command.ogString and will get lost!
    */
 
 void commandDispatch() {
-  
+
   if(debug){
     Serial.print("Line Received: ");
     Serial.print(command.ogString);
   }
- 
+
   ripCommands(); // rips through string, builds command object
 
   for(int i = 0; i < 5; i ++){
@@ -142,13 +142,13 @@ void ripCommands() {
   int charNum = 0;
   int pnum = 0; // this loop will roll through and add tuples
   int runLength = command.ogString.length() + 1;
-  
+
   while (charNum < runLength) { // LOOPING THROUGH THE COMMAND
     if(isAlpha(command.ogString.charAt(charNum))){ // WHEN WE FIND A COMMAND CODE
       command.pairs[pnum].code = command.ogString.charAt(charNum); // store code in 1st pair
       charNum ++; // to next char
       // DO Number-find proceeding Command Code \/
-      while (isDigit(command.ogString.charAt(charNum)) || command.ogString.charAt(charNum) == '-' || command.ogString.charAt(charNum) == '.') { 
+      while (isDigit(command.ogString.charAt(charNum)) || command.ogString.charAt(charNum) == '-' || command.ogString.charAt(charNum) == '.') {
         command.pairs[pnum].valString += command.ogString.charAt(charNum);
         if (charNum < runLength){ charNum ++; } else { Serial.println("BRKPNT 1"); break; } // go to next char, or bail if none left
       } // done reading digits to char string
@@ -202,12 +202,12 @@ float stringToFloat(String fltString){
 }
 
 void pairSetup(int i){
-  
+
   char code = command.pairs[i].code;
   float val = command.pairs[i].val;
-  
+
   switch (code) {
-    
+
     case 'X':
       command.replyString += "X Test";
       break;
@@ -229,7 +229,7 @@ void pairSetup(int i){
       //command.pairs[i].replyString += "CB";
       //command.pairs[i].replyString += String(val);
       break;
-      
+
     case 'M':
       command.isMeasurement = true;
       break;
@@ -278,7 +278,7 @@ void pairSetup(int i){
       command.replyString += "Unknown Code in Command: ";
       command.replyString += command.ogString;
   } // end case
-      
+
 }
 
 void executeBlock(){
@@ -303,7 +303,7 @@ void executeBlock(){
     delay(100); // for mylexis
     command.replyString += "M";
     command.replyString += "A";
-    command.replyString += String(stepperA.currentPosition()/stepsPerDegA); 
+    command.replyString += String(stepperA.currentPosition()/stepsPerDegA);
     command.replyString += "B";
     command.replyString += String(stepperB.currentPosition()/stepsPerDegB);
     command.replyString += "D";
@@ -315,11 +315,11 @@ void executeBlock(){
   Serial.println(command.replyString);
 
   command.wasExecuted = true;
-  
+
 }
 
 void wipeCommand(){
-    
+
   command.ogString = "";
   command.isReady = false;
   command.wasExecuted = false;
@@ -369,11 +369,11 @@ void disableSteppers() {
 // -------------- @ Subsection STEPPER GOTO
 
   /*
-   * the AccelStepper library does not implement an interrupt-based 
+   * the AccelStepper library does not implement an interrupt-based
    * step timer. this means the system has to be told to check whether enough
    * time has past (since the last step) that it should make another step.
    * this is what the .run() function does.
-   * 
+   *
    * the following two functions implement this method: they set a new
    * target position to .moveTo(steps), and hold in a while-loop, performing the
    * step-check until the position is reached
@@ -416,16 +416,16 @@ void goToDegB(float deg, bool wait) {
    *          - what happens when homing routine starts and the switch is already on? should back-off and re-approach
    *          - what happens when homing winds >180 degrees from starting position, indicating it is likely one full rotation from 'true' home
    *          - what happens on switch error, when homing winds >360 deg and no position is found?
-   *          - etc... 
+   *          - etc...
    */
 
 void homeSteppers() {
   // home A
-  stepperA.setCurrentPosition(0);  
+  stepperA.setCurrentPosition(0);
   if(digitalRead(stepLimitA) == 0){ // if already home, back off so we hit switch at same spot
     goToDegA(-20, true);
   }
-  
+
   stepperA.setSpeed(stepHomeSpeed);
   while(digitalRead(stepLimitA) == 1) {
     stepperA.runSpeed(); // should have timeout for if this doesn't switch
@@ -434,18 +434,18 @@ void homeSteppers() {
   // do setCurrent Position +/- 360* so that we unwind on the next move
   if(stepperA.currentPosition() / stepsPerDegA > 200){
     stepperA.setCurrentPosition(degWhenHomedA * stepsPerDegA + 360 * stepsPerDegA);
-  } else { 
+  } else {
     stepperA.setCurrentPosition(degWhenHomedA * stepsPerDegA);
   }
   goToDegA(0, true);
 
-  
+
   // home B
   stepperB.setCurrentPosition(0);
   if(digitalRead(stepLimitB) == 0) {
     goToDegB(-20, true);
   }
-  
+
   stepperB.setSpeed(stepHomeSpeed);
   while (digitalRead(stepLimitB) == 1) {
     stepperB.runSpeed();
@@ -455,7 +455,8 @@ void homeSteppers() {
   } else {
     stepperB.setCurrentPosition(degWhenHomedB * stepsPerDegB);
   }
-  goToDegB(0, true);
+  goToDegB(-20.65, true);
+  stepperB.setCurrentPosition(0);
 }
 
 // --------------------------------------------------------- @ Section SENSORS
