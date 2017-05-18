@@ -19,7 +19,11 @@ function closeSocket() {
 function newData(result) {
 	var theData = result.data;
 	if(debug){console.log("js newData:" + theData);}
-	recentLines.add("SNSR: " + theData);
+		if (theData.indexOf("Unknown Code in Command") == 0) {
+			recentLines.add("SNSR: Unknown Command");
+		} else {
+			recentLines.add("SNSR: " + theData);
+		}
 	if(theData[0] == "S"){
 		scan.doNextPoint();
 	}
