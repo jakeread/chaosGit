@@ -67,10 +67,10 @@ function initThree(){
 
 function onWindowResize(){
 
-	camera.aspect = width / height;
+	camera.aspect = ((window.innerWidth-315) / (window.innerHeight-25));
 	camera.updateProjectionMatrix();
 
-	renderer.setSize(width, height);
+	renderer.setSize(window.innerWidth-315, window.innerHeight-25);
 
 	controls.handleResize();
 
@@ -200,6 +200,7 @@ function mapTemp(low, high, eval) { // used by dataPoint to build temp->color
 	var r, g, b; // for colours
 
 	tempValue = Math.map(tempEval, tempLow, tempHigh, 0, 1);
+
 
 	switch(true) {
 		case (0 < tempValue && tempValue <= 0.12):
