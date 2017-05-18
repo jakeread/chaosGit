@@ -192,23 +192,57 @@ function initThreePointCloud(){
 
 function mapTemp(low, high, eval) { // used by dataPoint to build temp->color
 
-	var tempLow = low;
-	var tempHigh = high;
-	var tempMid = (high - low) / 2 + low;
-
+	var tempLow = Math.log(low);
+	var tempHigh = Math.log(high);
+	var tempMid = (tempHigh - tempLow) / 2 + tempLow;
+	var tempEval = Math.log(eval);
+	var rValue, gValue, bValue;9
 	var r, g, b; // for colours
 
-	r = Math.map(eval, tempMid, tempHigh, 0, 1); // THREE dishes RGB's 0-1 when writing direct to buffer
+	tempValue = Math.map(tempEval, tempLow, tempHigh, 0, 1);
 
-    if (eval > tempMid) {
-		g = Math.map(eval, tempMid, tempHigh, 1, 0);
-	} else if (eval < tempMid) {
-		g = Math.map(eval, tempLow, tempMid, 0, 1);
-	} else {
-		g = 0;
+	switch(true) {
+		case (0 < tempValue && tempValue <= 0.12):
+			b = 0.5;//4.16 * (tempValue + 0.12);
+			break;
+		case (0.12 < tempValue && tempValue <= 0.38):
+			b = 1;
+			break;
+		case (0.36 < tempValue && tempValue <= 0.62):
+			b = -4.16 * (tempValue - 0.62);
+			break;
+		default:
+			b = 0;
 	}
 
-	b = Math.map(eval, tempLow, tempMid, 1, 0);
+	switch(true) {
+		case (0.14 < tempValue && tempValue <= 0.38):
+			g = 4.16 * (tempValue - 0.14);
+			break;
+		case (0.38 < tempValue && tempValue <= 0.62):
+			g = 1;
+			break;
+		case (0.62 < tempValue && tempValue <= 0.86):
+			g = -4.16 * (tempValue - 0.88);
+			break;
+		default:
+			g = 0;
+	}
+
+	switch(true) {
+		case (0.38 < tempValue && tempValue <= 0.62):
+			r = 4.16 * (tempValue - 0.38);
+			break;
+		case (0.62 < tempValue && tempValue <= 0.88):
+			r = 1;
+			break;
+		case (0.86 < tempValue && tempValue <= 1):
+			r = -4.16 * (tempValue - 1.1);
+			break;
+		default:
+			r = 0;
+	}
+
 
 	var tempColour = {
 		"r": r,
