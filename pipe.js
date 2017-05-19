@@ -15,8 +15,10 @@ const rl = readline.createInterface({
 
 rl.on('line', parseLineIn);
 
-function parseLineIn(data){
-	if(debug){console.log("rl: parseLineIn" + data);}
+function parseLineIn(data) {
+	if (debug) {
+		console.log("rl: parseLineIn" + data);
+	}
 	writeToPort(data);
 }
 
@@ -26,7 +28,7 @@ function parseLineIn(data){
 var serialport = require('serialport'),
 	SerialPort = serialport,
 	portname = '/dev/cu.usbmodem2601641'; //'COM9'; // to do direct
-	//process.argv[2]; // to read serial port name from command line
+//process.argv[2]; // to read serial port name from command line
 
 var myPort = new SerialPort(portname, {
 	baudrate: 115200,
@@ -51,13 +53,17 @@ myPort.on('error', function() {
 myPort.on('data', serialDataIn); // on data event, do this function
 
 function serialDataIn(data) { // from PORT
-	if(debug){console.log("PIPE: serialDataIn: " + data);}
+	if (debug) {
+		console.log("PIPE: serialDataIn: " + data);
+	}
 	console.log("SNSR: " + data);
 	publish(data); // send to websocket
 };
 
-function writeToPort(data){ // to PORT
-	if(debug){console.log("PIPE: writeToPort: " + data);}
+function writeToPort(data) { // to PORT
+	if (debug) {
+		console.log("PIPE: writeToPort: " + data);
+	}
 	console.log("USER: " + data);
 	myPort.write(data + '\n'); // send to arduino
 }
@@ -67,7 +73,9 @@ function writeToPort(data){ // to PORT
 //websocket, ? talks to the browser-side
 var WebSocketServer = require('ws').Server;
 var SERVER_PORT = 8081;
-var wss = new WebSocketServer({port: SERVER_PORT});
+var wss = new WebSocketServer({
+	port: SERVER_PORT
+});
 var connections = new Array; // handles the multiple connections
 
 wss.on('connection', handleConnection);
@@ -85,15 +93,19 @@ function handleConnection(client) {
 	});
 }
 
-function sendData(data){ // To WebSocket, per connection
-	for (connection in connections){ // plurals!
-		if(debug){console.log("PIPE: sent to connection #: " + connection + " this data: " + data);}
+function sendData(data) { // To WebSocket, per connection
+	for (connection in connections) { // plurals!
+		if (debug) {
+			console.log("PIPE: sent to connection #: " + connection + " this data: " + data);
+		}
 		connections[connection].send(data);
 	}
 }
 
-function publish(data){ // To WebSocket, all connections
-	if(debug){console.log("PIPE: sentToWeb: "+data);}
+function publish(data) { // To WebSocket, all connections
+	if (debug) {
+		console.log("PIPE: sentToWeb: " + data);
+	}
 	if (connections.length > 0) {
 		sendData(data);
 	}
