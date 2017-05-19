@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<link rel="stylesheet" href="https://unpkg.com/purecss@0.6.2/build/pure-min.css" integrity="sha384-UQiGfs9ICog+LwheBSRCt1o5cbyKIHbwjWscjemyBMT9YCUMZffs6UqUTd0hObXD" crossorigin="anonymous">
 		<meta charset=utf-8>
 		<title>CHAOS Lab SMART Sensor Control</title>
 		<style type = text/css>
-			body { margin: 0; font-family: "Arial", sans-serif; }
-			canvas { margin: 0; } 
+			html, body{height: 100%}
+			body { margin: 0; font-family: "Helvetica"; }
+			canvas { margin: 0; }
 			#wrapper {
 				margin: 10px;
 			}
@@ -23,7 +25,44 @@
 				position:fixed;
 				bottom:50px;
 				padding-left: 10px;
+				font-family: "Helvetica";
+				max-height: calc(100% - 245px);
+				overflow: auto;
+				width:290px;
 			}
+
+			#logo {
+				float: left;
+				width:150px;
+				display: inline-block;
+				margin: 0px;
+				padding: 0px;
+			}
+			#buttons {
+				float: left;
+				display: inline-block;
+				width:140px;
+				margin: 0px;
+				padding: 0px;
+				padding-top: 10px;
+				text-align: center;
+			}
+			#sidebar_header {
+				float: left;
+				width:290px;
+				height:150px;
+				margin: 0px;
+				padding: 0px;
+				border-bottom: 1px solid #ccc;
+			}
+
+			.button-small {
+				font-size: 75%;
+				padding: 5px;
+				margin: 4px;
+				width: 100px;
+			}
+
 			input {
 				border:none;
 				background-color:#ccc;
@@ -33,6 +72,7 @@
 				position:fixed;
 				bottom:15px;
 				left:10px;
+				font-family: "Helvetica";
 			}
 			input:focus {
 				background-color:#eee;
@@ -43,15 +83,18 @@
 	<body>
 		<div id="wrapper">
 			<div id="sidebar">
-				<!-- 
-				-in the future, we will want to provide the option to
-				upload saved JSONs for viewing only...
-				also: uploading scan patterns
-				<form id="file-form" action="handler.php" method="POST">
-  					<input type="file" id="file-select" name="photos[]" multiple/>
-  					<button type="submit" id="upload-button">Upload JSON</button>
-				</form>
-				-->
+				<div id="sidebar_header">
+					<div id="logo">
+						<img src="logo.png" style="width:150px; height:150px;">
+									</div>
+					<div id="buttons">
+						<button class = "button-small pure-button" id ="load_btn">Load Pattern</button>
+						<button class = "button-small pure-button" id ="start_btn">Start Scan</button>
+						<button class = "button-small pure-button" id ="stop_btn">Stop Scan</button>
+						<button class = "button-small pure-button" id ="load_scan_btn">Load Scan</button>
+					</div>
+				</div>
+
 				<p id="recentLines"></p>
 				<input type="text" id="commandIn" value="">
 				<!--<button onclick="commandLineInput()">Line</button>-->

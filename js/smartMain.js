@@ -1,5 +1,11 @@
 var debug = false;
 
+var start_btn = document.getElementById('start_btn');
+var load_scan_btn = document.getElementById('load_scan_btn');
+var load_pattern_btn = document.getElementById('load_pattern_btn');
+var stop_btn = document.getElementById('stop_btn');
+var dynamic_scroll = document.getElementById('recentLines');
+
 // ----------------------------------------------------------------------------------------------- COMMUNICATION
 
 var socket = new WebSocket("ws://localhost:8081");
@@ -18,17 +24,21 @@ function closeSocket() {
 
 function newData(result) {
 	var theData = result.data;
-	if(debug){console.log("js newData:" + theData);}
-		if (theData.indexOf("Unknown Code in Command") == 0) {
-			recentLines.add("SNSR: Unknown Command");
-		} else {
-			recentLines.add("SNSR: " + theData);
-		}
-	if(theData[0] == "S"){
+	if (debug) {
+		console.log("js newData:" + theData);
+	}
+	if (theData.indexOf("Unknown Code in Command") == 0) {
+		recentLines.add("SMART: Unknown Command");
+	} else {
+		recentLines.add("SMART: " + theData);
+	}
+	if (theData[0] == "S") {
 		scan.doNextPoint();
 	}
-	if(theData[0] == "M" || theData[1] == "M"){ // ---------------------------------------------- On dataPoint Received
-		if(debug){console.log("in M-message");}
+	if (theData[0] == "M" || theData[1] == "M") { // ---------------------------------------------- On dataPoint Received
+		if (debug) {
+			console.log("in M-message");
+		}
 		var dtp = dataPoint(theData); // dataPoint returns object
 		dataPoints.push(dtp); // puts object in array of objects
 		threeNewPoints(); // three updates the set of points now
@@ -37,8 +47,10 @@ function newData(result) {
 
 // ----------------------------------------------------------------------------------------------- TEXT TERMINAL
 
-function handleCommands(input){
-	if(debug){console.log("js handleCommands: " + input);}
+function handleCommands(input) {
+	if (debug) {
+		console.log("js handleCommands: " + input);
+	}
 	if (input.indexOf("load scan") == 0) {
 		var path = input.substring(input.indexOf("n") + 2);
 		loadData(path);
@@ -48,34 +60,34 @@ function handleCommands(input){
 		loadPattern(path);
 		recentLines.add("Pattern loaded");
 	} else {
-		switch(input){
-			default:
-				socket.send(input);
-				break;
+		switch (input) {
+			default: socket.send(input);
+			break;
 			case "save":
-				saveData(dataPoints);
+					saveData(dataPoints);
 				break;
 			case "start scan":
-				scan.init();
+					scan.init();
 				break;
 		}
 	}
-	// DO IT WITH EVENTS <------------------
 }
 
 document.getElementById('commandIn').addEventListener('keydown', keyPressed); // referencing HTML element we wrote w/ this ID
 
-function keyPressed(event){
-	if(event.keyCode == 13){
+function keyPressed(event) {
+	if (event.keyCode == 13) {
 		event.preventDefault();
 		commandLineInput();
 	}
 }
 
-function commandLineInput(){
+function commandLineInput() {
 	var input = document.getElementById("commandIn").value;
-	if(debug){console.log(input);}
-	recentLines.add("USER: "+ input);
+	if (debug) {
+		console.log(input);
+	}
+	recentLines.add("USER: " + input);
 	handleCommands(input);
 	document.getElementById("commandIn").value = ""; // clear input
 }
@@ -85,16 +97,27 @@ var recentLines = { // lines display obj
 
 	domLines: document.getElementById("recentLines"),
 
-	add: function(newLine){
-		if(this.lines.push(newLine) > 30){
+	add: function(newLine) {
+		if (this.lines.push(newLine) > 30) {
 			this.lines.splice(0, 1);
 		}
 		this.domLines.innerHTML = ""; // clear it
-		for(i = 0; i < this.lines.length; i ++){
+		for (i = 0; i < this.lines.length; i++) {
 			this.domLines.innerHTML += this.lines[i] + "</br>"; // re-write
 		}
-		if(debug){console.log(this.lines);}
+		if (debug) {
+			console.log(this.lines);
+		}
+		updateScroll();
 	}
+}
+
+/**
+ * Updates recentLines scroll to ensure most recent command is at the bottom
+ */
+function updateScroll() {
+	var element = document.getElementById("recentLines");
+	element.scrollTop = element.scrollHeight;
 }
 
 // ----------------------------------------------------------------------------------------------- UTILS
@@ -108,11 +131,17 @@ Math.degrees = function(radians) {
 };
 
 Math.map = function(value, inLow, inHigh, outLow, outHigh) {
-	if(value <= inLow){
+	if (value <= inLow) {
 		return outLow;
-	} else if(value >= inHigh) {
+	} else if (value >= inHigh) {
 		return outHigh;
 	} else {
-		return ((value - inLow)/(inHigh - inLow))*(outHigh-outLow)+outLow;
+		return ((value - inLow) / (inHigh - inLow)) * (outHigh - outLow) + outLow;
 	}
 };
+
+function call_start() {
+	handleCommands("start scan");
+}
+
+start_btn.onclick = call_start;
