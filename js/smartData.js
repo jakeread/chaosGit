@@ -1,19 +1,18 @@
-
 // ----------------------------------------------------------------------------------------------- DATA
 
 var dataPoints = new Array();
 
-function dataPoint(data){ // writes points on receipt of M-messages
+function dataPoint(data) { // writes points on receipt of M-messages
 
-	var a = parseFloat(data.slice(data.indexOf("A")+1, data.indexOf("B")));
-	var b = parseFloat(data.slice(data.indexOf("B")+1, data.indexOf("D")));
-	var distance = parseFloat(data.slice(data.indexOf("D")+1, data.indexOf("R")));
-	var radiant = parseFloat(data.slice(data.indexOf("R")+1, data.length));
+	var a = parseFloat(data.slice(data.indexOf("A") + 1, data.indexOf("B")));
+	var b = parseFloat(data.slice(data.indexOf("B") + 1, data.indexOf("D")));
+	var distance = parseFloat(data.slice(data.indexOf("D") + 1, data.indexOf("R")));
+	var radiant = parseFloat(data.slice(data.indexOf("R") + 1, data.length));
 
 	var pos = {
-		"x": distance*Math.cos(Math.radians(b))*Math.cos(Math.radians(a)),
-		"y": distance*Math.cos(Math.radians(b))*Math.sin(Math.radians(a)),
-		"z": Math.sin(Math.radians(b))*distance
+		"x": distance * Math.cos(Math.radians(b)) * Math.cos(Math.radians(a)),
+		"y": distance * Math.cos(Math.radians(b)) * Math.sin(Math.radians(a)),
+		"z": Math.sin(Math.radians(b)) * distance
 	};
 
 	var theDataPoint = {
@@ -24,12 +23,14 @@ function dataPoint(data){ // writes points on receipt of M-messages
 		"pos": pos,
 	};
 
-	if(debug){console.log(theDataPoint);}
+	if (debug) {
+		console.log(theDataPoint);
+	}
 	return theDataPoint;
 }
 
-function saveData(){
-	if (dataPoints.length < 1){
+function saveData() {
+	if (dataPoints.length < 1) {
 		recentLines.add("THR3: dataPoints array is of length 0")
 	} else {
 		recentLines.add("THR3: saving data...");
@@ -38,15 +39,15 @@ function saveData(){
 	}
 }
 
-function loadData(path){
+function loadData(path) {
 	var response;
 	var xobj = new XMLHttpRequest();
 	xobj.overrideMimeType("application/json");
-	var filePath = './completedScans/'+path;
+	var filePath = './completedScans/' + path;
 
 	xobj.open('GET', filePath, true);
-	xobj.onreadystatechange = function(){
-		if(xobj.readyState == 4){
+	xobj.onreadystatechange = function() {
+		if (xobj.readyState == 4) {
 			dataPoints = JSON.parse(xobj.responseText);
 			threeNewPoints();
 		}

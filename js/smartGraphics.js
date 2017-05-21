@@ -1,13 +1,12 @@
-
 // ----------------------------------------------------------------------------------------------- GRAPHICS
 
-if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+if (!Detector.webgl) Detector.addGetWebGLMessage();
 
 var container;
 var camera, controls, scene, renderer, cloud, uniforms;
 
-var width = window.innerWidth-315;
-var height = window.innerHeight-25;
+var width = window.innerWidth - 315;
+var height = window.innerHeight - 25;
 
 // init, animate
 
@@ -15,16 +14,16 @@ initThree();
 initThreePointCloud();
 animate();
 
-function initThree(){
+function initThree() {
 
 	// camera
 
-	camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 1000);
+	camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
 	camera.position.x = 5;
 	camera.position.y = -5;
 	camera.position.z = 5;
-	camera.lookAt(0,0,0);
-	camera.up.set(0,0,1);
+	camera.lookAt(0, 0, 0);
+	camera.up.set(0, 0, 1);
 
 	controls = new THREE.TrackballControls(camera, container);
 
@@ -45,15 +44,17 @@ function initThree(){
 	// werld
 
 	scene = new THREE.Scene();
-	scene.background = new THREE.Color( 0xdcdcdc );
+	scene.background = new THREE.Color(0xdcdcdc);
 
-	var origin = new THREE.AxisHelper( 1 );
-	origin.position.set(0,0,0);
-	scene.add( origin );
+	var origin = new THREE.AxisHelper(1);
+	origin.position.set(0, 0, 0);
+	scene.add(origin);
 
 	// renderer
 
-	renderer = new THREE.WebGLRenderer({antialias: true});
+	renderer = new THREE.WebGLRenderer({
+		antialias: true
+	});
 	renderer.setSize(width, height);
 
 	container = document.getElementById('container');
@@ -65,31 +66,31 @@ function initThree(){
 
 }
 
-function onWindowResize(){
+function onWindowResize() {
 
-	camera.aspect = ((window.innerWidth-315) / (window.innerHeight-25));
+	camera.aspect = ((window.innerWidth - 315) / (window.innerHeight - 25));
 	camera.updateProjectionMatrix();
 
-	renderer.setSize(window.innerWidth-315, window.innerHeight-25);
+	renderer.setSize(window.innerWidth - 315, window.innerHeight - 25);
 
 	controls.handleResize();
 
 	render();
 }
 
-function animate(){
+function animate() {
 	requestAnimationFrame(animate);
 	controls.update();
 }
 
-function render(){
+function render() {
 	renderer.render(scene, camera);
 }
 
 var maxmax = 45;
 var minmin = 10;
 
-function threeNewPoints(){
+function threeNewPoints() {
 
 	var alphas = cloud.geometry.attributes.alpha;
 	var count = alphas.count;
@@ -99,27 +100,27 @@ function threeNewPoints(){
 	var min = 100;
 	var max = 0;
 
-	for(var i = 0; i < dataPoints.length; i ++){
+	for (var i = 0; i < dataPoints.length; i++) {
 		var eval = dataPoints[i].radiant;
-		if (eval > max && eval < maxmax){
+		if (eval > max && eval < maxmax) {
 			max = eval;
 		}
-		if (eval < min && eval > minmin){
+		if (eval < min && eval > minmin) {
 			min = eval;
 		}
 	}
 
-	for(var i = 0; i < dataPoints.length; i ++){
+	for (var i = 0; i < dataPoints.length; i++) {
 
 		alphas.array[i] = 1; // set all points in cloud w/ dataPoint equiv to visible
-		positions.array[i*3] = dataPoints[i].pos.x;
-		positions.array[i*3 + 1] = dataPoints[i].pos.y;
-		positions.array[i*3 + 2] = dataPoints[i].pos.z;
+		positions.array[i * 3] = dataPoints[i].pos.x;
+		positions.array[i * 3 + 1] = dataPoints[i].pos.y;
+		positions.array[i * 3 + 2] = dataPoints[i].pos.z;
 
 		var tempColor = mapTemp(min, max, dataPoints[i].radiant);
-		customColors.array[i*3] = tempColor.r;
-		customColors.array[i*3 + 1] = tempColor.g;
-		customColors.array[i*3 + 2] = tempColor.b;
+		customColors.array[i * 3] = tempColor.r;
+		customColors.array[i * 3 + 1] = tempColor.g;
+		customColors.array[i * 3 + 2] = tempColor.b;
 
 		/*
 		console.log("customColors: i*3: " + i*3 +
@@ -137,7 +138,7 @@ function threeNewPoints(){
 
 }
 
-function initThreePointCloud(){
+function initThreePointCloud() {
 
 	// we'll make a lot, only display those we have data for
 	numPoints = 8192;
@@ -147,19 +148,19 @@ function initThreePointCloud(){
 
 	// filling geometry
 	var alphas = new Float32Array(numPoints);
-	var positions = new Float32Array(numPoints * 3);	// x, y, z
-	var colors = new Float32Array(numPoints * 3); 		// r, g, b
+	var positions = new Float32Array(numPoints * 3); // x, y, z
+	var colors = new Float32Array(numPoints * 3); // r, g, b
 
 	var baseColor = new THREE.Color();
 
-	for(var i = 0; i < numPoints; i++){
+	for (var i = 0; i < numPoints; i++) {
 		alphas[i] = 0;
-		positions[i*3] = 0;		// x
-		positions[i*3 + 1] = 0;	// y
-		positions[i*3 + 2] = 0;	// z
+		positions[i * 3] = 0; // x
+		positions[i * 3 + 1] = 0; // y
+		positions[i * 3 + 2] = 0; // z
 
-		baseColor.setRGB(255,0,0);
-		baseColor.toArray( colors, i * 3);
+		baseColor.setRGB(255, 0, 0);
+		baseColor.toArray(colors, i * 3);
 	}
 
 	pointCloudGeometry.addAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
@@ -169,7 +170,9 @@ function initThreePointCloud(){
 	// shader / material
 
 	uniforms = {
-		color: { value: new THREE.Color(0xffffff)},
+		color: {
+			value: new THREE.Color(0xffffff)
+		},
 	};
 
 	var shaderMaterial = new THREE.ShaderMaterial({
@@ -179,7 +182,7 @@ function initThreePointCloud(){
 		fragmentShader: document.getElementById('fragmentshader').textContent,
 		transparent: true,
 
-		alphaTest : 0.9
+		alphaTest: 0.9
 
 	});
 
@@ -196,13 +199,14 @@ function mapTemp(low, high, eval) { // used by dataPoint to build temp->color
 	var tempHigh = Math.log(high);
 	var tempMid = (tempHigh - tempLow) / 2 + tempLow;
 	var tempEval = Math.log(eval);
-	var rValue, gValue, bValue;9
+	var rValue, gValue, bValue;
+	9
 	var r, g, b; // for colours
 
 	tempValue = Math.map(tempEval, tempLow, tempHigh, 0, 1);
 
 
-	switch(true) {
+	switch (true) {
 		case (0 < tempValue && tempValue <= 0.12):
 			b = 4.16 * (tempValue + 0.12);
 			break;
@@ -216,7 +220,7 @@ function mapTemp(low, high, eval) { // used by dataPoint to build temp->color
 			b = 0;
 	}
 
-	switch(true) {
+	switch (true) {
 		case (0.14 < tempValue && tempValue <= 0.38):
 			g = 4.16 * (tempValue - 0.14);
 			break;
@@ -230,7 +234,7 @@ function mapTemp(low, high, eval) { // used by dataPoint to build temp->color
 			g = 0;
 	}
 
-	switch(true) {
+	switch (true) {
 		case (0.38 < tempValue && tempValue <= 0.62):
 			r = 4.16 * (tempValue - 0.38);
 			break;

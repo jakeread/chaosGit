@@ -98,7 +98,7 @@ var recentLines = { // lines display obj
 	domLines: document.getElementById("recentLines"),
 
 	add: function(newLine) {
-		if (this.lines.push(newLine) > 30) {
+		if (this.lines.push(newLine) > 50) {
 			this.lines.splice(0, 1);
 		}
 		this.domLines.innerHTML = ""; // clear it
