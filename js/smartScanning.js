@@ -3,6 +3,7 @@
 var scanPattern;
 var startTime;
 var endTime;
+var _stop;
 
 function loadPattern(path) {
 	var response;
@@ -70,6 +71,7 @@ var scan = {
 
 	init: function() {
 		this.isRunning = true;
+		_stop = false;
 		recentLines.add("THR3: Scanning...");
 		startTime = new Date().getTime();
 		this.doNextPoint();
@@ -77,19 +79,24 @@ var scan = {
 
 	doNextPoint: function() {
 		if (this.isRunning) {
-			while (this.doBoundsCheck(scanPattern[this.scanPosition].a, scanPattern[this.scanPosition].b)) {
-				recentLines.add("THR3: Throwing point: due to OOB");
-				console.log("throwing point" + this.scanPosition + "due to OOB");
-				this.scanPosition++;
-			}
-			var nextA = scanPattern[this.scanPosition].a;
-			var nextB = scanPattern[this.scanPosition].b;
-			socket.send("MS" + "A" + nextA + "B" + nextB);
-			this.scanPosition++; // done here, next serial-recept with letter 'S' will trigger this f'n again
+			if (!_stop) {
+				while (this.doBoundsCheck(scanPattern[this.scanPosition].a, scanPattern[this.scanPosition].b)) {
+					recentLines.add("THR3: Throwing point: due to OOB");
+					console.log("throwing point" + this.scanPosition + "due to OOB");
+					this.scanPosition++;
+				}
+				var nextA = scanPattern[this.scanPosition].a;
+				var nextB = scanPattern[this.scanPosition].b;
+				socket.send("MS" + "A" + nextA + "B" + nextB);
+				this.scanPosition++; // done here, next serial-recept with letter 'S' will trigger this f'n again
 
-			if (this.scanPosition >= scanPattern.length) {
-				this.isRunning = false;
-				endTime = new Date().getTime();
+				if (this.scanPosition >= scanPattern.length) {
+					this.isRunning = false;
+					endTime = new Date().getTime();
+				}
+			} else {
+				recentLines.add("Scan Stopped");
+				socket.send("A0B0");
 			}
 			// setup wait
 		} else {

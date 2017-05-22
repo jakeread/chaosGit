@@ -152,6 +152,13 @@ function call_start() {
 	handleCommands("start scan");
 }
 
+/**
+ * Set _stop flag to true
+ */
+function call_stop() {
+	_stop = true;
+}
+
 function loadPatternFile(e) {
 	var file = e.target.files[0];
 	if (!file) {
@@ -183,4 +190,5 @@ function loadScanFile(e) {
 
 
 start_btn.onclick = call_start;
+stop_btn.onclick = call_stop;
 
