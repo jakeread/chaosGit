@@ -3,7 +3,9 @@
 var scanPattern;
 var startTime;
 var endTime;
+var _pause;
 var _stop;
+
 
 /**
  * Load scan pattern from local file
@@ -83,6 +85,7 @@ var scan = {
 	 */
 	init: function () {
 		this.isRunning = true;
+		_pause = false;
 		_stop = false;
 		recentLines.add("Scanning...");
 		startTime = new Date().getTime();
@@ -90,27 +93,35 @@ var scan = {
 	},
 
 	/**
-	 * Scan the next point in the scan pattern
+	 * Scan the next point in the scan pattern. Checks isRunning,
+	 * stop and pause flags.
 	 */
 	doNextPoint: function () {
 		if (this.isRunning) {
 			if (!_stop) {
-				while (this.doBoundsCheck(scanPattern[this.scanPosition].a, scanPattern[this.scanPosition].b)) {
-					recentLines.add("Ignoring point out of bounds");
-					console.log("throwing point" + this.scanPosition + "due to OOB");
-					this.scanPosition++;
-				}
-				var nextA = scanPattern[this.scanPosition].a;
-				var nextB = scanPattern[this.scanPosition].b;
-				socket.send("MS" + "A" + nextA + "B" + nextB);
-				this.scanPosition++; // done here, next serial-recept with letter 'S' will trigger this f'n again
+				if (!_pause) {
+					while (this.doBoundsCheck(scanPattern[this.scanPosition].a, scanPattern[this.scanPosition].b)) {
+						recentLines.add("Ignoring point out of bounds");
+						console.log("throwing point" + this.scanPosition + "due to OOB");
+						this.scanPosition++;
+					}
+					var nextA = scanPattern[this.scanPosition].a;
+					var nextB = scanPattern[this.scanPosition].b;
+					socket.send("MS" + "A" + nextA + "B" + nextB);
+					this.scanPosition++; // done here, next serial-recept with letter 'S' will trigger this f'n again
 
-				if (this.scanPosition >= scanPattern.length) {
-					this.isRunning = false;
-					endTime = new Date().getTime();
+					if (this.scanPosition >= scanPattern.length) {
+						this.isRunning = false;
+						endTime = new Date().getTime();
+					}
+				} else {
+					recentLines.add("Scan Paused");
+					socket.send("A0B0");
 				}
 			} else {
-				recentLines.add("Scan Paused");
+				recentLines.add("Scan Stopped");
+				scan.scanPosition = 0;
+				dataPoints = [];
 				socket.send("A0B0");
 			}
 			// setup wait

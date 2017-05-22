@@ -86,7 +86,11 @@ function handleCommands(input) {
 				scan.init();
 			break;
 		case "pause scan":
+				_pause = true;
+			break;
+		case "stop scan":
 				_stop = true;
+			break;
 		}
 	}
 }
@@ -178,7 +182,14 @@ function call_start() {
 }
 
 /**
- * Set _stop flag to true
+ * Set pause flag to true
+ */
+function call_pause() {
+	_pause = true;
+}
+
+/**
+ * Set stop flag to true
  */
 function call_stop() {
 	_stop = true;
@@ -222,4 +233,5 @@ function loadScanFile(e) {
 }
 
 start_btn.onclick = call_start;
+pause_btn.onclick = call_pause;
 stop_btn.onclick = call_stop;
