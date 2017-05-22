@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<link rel="stylesheet" href="https://unpkg.com/purecss@0.6.2/build/pure-min.css" integrity="sha384-UQiGfs9ICog+LwheBSRCt1o5cbyKIHbwjWscjemyBMT9YCUMZffs6UqUTd0hObXD" crossorigin="anonymous">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 		<meta charset=utf-8>
 		<title>CHAOS Lab SMART Sensor Control</title>
 		<style type = text/css>
@@ -44,7 +45,7 @@
 				width:140px;
 				margin: 0px;
 				padding: 0px;
-				padding-top: 3px;
+				padding-top: 18px;
 				text-align: center;
 				font-size: 0;
 			}
@@ -58,11 +59,18 @@
 			}
 			.button-small {
 				font-size: 12.5px;
-				padding: 3px;
 				margin: 4px;
-				width: 110px;
+				width: 128px;
 				top: 50%;
 				left: 50%;
+			}
+			.control_buttons {
+				width: 40px;
+				font-size: 14px;
+				margin: 2px;
+			}
+			#control_button_panel {
+				text-align: center;
 			}
 			input {
 				border:none;
@@ -88,12 +96,26 @@
 						<img src="logo.png" style="width:150px; height:150px;">
 					</div>
 					<div id="buttons">
-						<button class = "button-small pure-button" id ="load_btn">Load Pattern</button>
+						<button class = "button-small pure-button" id ="load_btn">
+						<i class="fa fa-cog icon"></i>
+						Load Pattern
+						</button>
 						<input type="file" id="pattern_file_input" onchange="loadPatternFile(event)"/>
-						<button class = "button-small pure-button" id ="start_btn">Start Scan</button>
-						<button class = "button-small pure-button" id ="pause_btn">Pause Scan</button>
-						<button class = "button-small pure-button" id ="stop_btn">Stop Scan</button>
-						<button class = "button-small pure-button" id ="load_scan_btn">Load Scan</button>
+						<div id="control_buttons_panel">
+							<button class = "control_buttons pure-button" id ="start_btn">
+							<i class = "fa fa-play icon"></i>
+							</button>
+							<button class = "control_buttons pure-button" id ="pause_btn">
+							<i class = "fa fa-pause icon"></i>
+							</button>
+							<button class = "control_buttons pure-button" id ="stop_btn">
+							<i class = "fa fa-stop icon"></i>
+							</button>
+						</div>
+						<button class = "button-small pure-button" id ="load_scan_btn">
+						<i class = "fa fa-folder-open icon"></i>
+						Open Scan
+						</button>
 						<input type="file" id="scan_file_input" onchange="loadScanFile(event)"/>
 					</div>
 				</div>
