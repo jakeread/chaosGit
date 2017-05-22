@@ -21,7 +21,7 @@ function loadPattern(path) {
 			scanPattern = JSON.parse(xobj.responseText);
 			sortPattern();
 		}
-	}
+	};
 	xobj.send(null);
 }
 
@@ -57,7 +57,7 @@ function loadJSON(callback) {
 		if (xobj.readyState == 4) {
 			callback(xobj.responseText);
 		}
-	}
+	};
 	xobj.send(null);
 }
 
@@ -110,7 +110,7 @@ var scan = {
 					endTime = new Date().getTime();
 				}
 			} else {
-				recentLines.add("Scan Stopped");
+				recentLines.add("Scan Paused");
 				socket.send("A0B0");
 			}
 			// setup wait
@@ -124,7 +124,7 @@ var scan = {
 	 */
 	finish: function () {
 		socket.send("A0B0");
-		recentLines.add("THR3: Scan is complete ")
+		recentLines.add("THR3: Scan is complete ");
 		recentLines.add("Scan took " + (endTime - startTime) / 1000 + " seconds to complete");
 	},
 
@@ -143,4 +143,4 @@ var scan = {
 			return false;
 		}
 	},
-}
+};

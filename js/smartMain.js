@@ -8,11 +8,11 @@ var dynamic_scroll = document.getElementById('recentLines');
 
 document.getElementById('load_btn').onclick = function () {
 	document.getElementById('pattern_file_input').click();
-}
+};
 
 document.getElementById('load_scan_btn').onclick = function () {
 	document.getElementById('scan_file_input').click();
-}
+};
 
 // ----------------------------------------------------------------------------------------------- COMMUNICATION
 
@@ -27,7 +27,7 @@ function openSocket() {
 }
 
 function closeSocket() {
-	console.log("Socket Closed")
+	console.log("Socket Closed");
 }
 
 /**
@@ -39,7 +39,7 @@ function newData(result) {
 	if (debug) {
 		console.log("js newData:" + theData);
 	}
-	if (theData.indexOf("Unknown Code in Command") == 0) {
+	if (theData.indexOf("Unknown Code in Command") === 0) {
 		recentLines.add("SMART: Unknown Command");
 	} else {
 		recentLines.add("SMART: " + theData);
@@ -63,15 +63,16 @@ function newData(result) {
  * @param  {string} input - command line input from browser UI
  */
 function handleCommands(input) {
+	var path;
 	if (debug) {
 		console.log("js handleCommands: " + input);
 	}
-	if (input.indexOf("load scan") == 0) {
-		var path = input.substring(input.indexOf("n") + 2);
+	if (input.indexOf("load scan") === 0) {
+		path = input.substring(input.indexOf("n") + 2);
 		loadData(path);
 		threeNewPoints();
-	} else if (input.indexOf("load pattern") == 0) {
-		var path = input.substring(input.indexOf("n") + 2);
+	} else if (input.indexOf("load pattern") === 0) {
+		path = input.substring(input.indexOf("n") + 2);
 		loadPattern(path);
 		recentLines.add("Pattern loaded");
 	} else {
@@ -114,7 +115,7 @@ function commandLineInput() {
  * recentLines object displays command line history in browser UI
  */
 var recentLines = { // lines display obj
-	lines: new Array(),
+	lines: [],
 
 	domLines: document.getElementById("recentLines"),
 
@@ -131,7 +132,7 @@ var recentLines = { // lines display obj
 		}
 		updateScroll();
 	}
-}
+};
 
 /**
  * Updates recentLines scroll to ensure most recent command is at the bottom

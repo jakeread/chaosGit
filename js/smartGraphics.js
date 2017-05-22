@@ -112,31 +112,31 @@ function threeNewPoints() {
 	var max = 0;
 
 	for (var i = 0; i < dataPoints.length; i++) {
-		var eval = dataPoints[i].radiant;
-		if (eval > max && eval < maxmax) {
-			max = eval;
+		var point = dataPoints[i].radiant;
+		if (point > max && point < maxmax) {
+			max = point;
 		}
-		if (eval < min && eval > minmin) {
-			min = eval;
+		if (point < min && point > minmin) {
+			min = point;
 		}
 	}
 
-	for (var i = 0; i < dataPoints.length; i++) {
-		alphas.array[i] = 1; // set all points in cloud w/ dataPoint equiv to visible
-		positions.array[i * 3] = dataPoints[i].pos.x;
-		positions.array[i * 3 + 1] = dataPoints[i].pos.y;
-		positions.array[i * 3 + 2] = dataPoints[i].pos.z;
+	for (var j = 0; j < dataPoints.length; j++) {
+		alphas.array[j] = 1; // set all points in cloud w/ dataPoint equiv to visible
+		positions.array[j * 3] = dataPoints[j].pos.x;
+		positions.array[j * 3 + 1] = dataPoints[j].pos.y;
+		positions.array[j * 3 + 2] = dataPoints[j].pos.z;
 
-		var tempColor = mapTemp(min, max, dataPoints[i].radiant);
-		customColors.array[i * 3] = tempColor.r;
-		customColors.array[i * 3 + 1] = tempColor.g;
-		customColors.array[i * 3 + 2] = tempColor.b;
+		var tempColor = mapTemp(min, max, dataPoints[j].radiant);
+		customColors.array[j * 3] = tempColor.r;
+		customColors.array[j * 3 + 1] = tempColor.g;
+		customColors.array[j * 3 + 2] = tempColor.b;
 
 		/*
-		console.log("customColors: i*3: " + i*3 +
-				"\narray[i*3]: " + customColors.array[i*3] +
-				"\narray[i*3 + 1]: " + customColors.array[i*3 +1] +
-				"\narray[i*3 + 2]: " + customColors.array[i*3 +2] );
+		console.log("customColors: j*3: " + j*3 +
+				"\narray[j*3]: " + customColors.array[j*3] +
+				"\narray[j*3 + 1]: " + customColors.array[j*3 +1] +
+				"\narray[j*3 + 2]: " + customColors.array[j*3 +2] );
 		*/
 	}
 
@@ -211,20 +211,20 @@ function initThreePointCloud() {
  *
  * @param  {float} low   - lowest temperature recorded.
  * @param  {float} high  - highest temperature recorded
- * @param  {float} eval  - temperature to evaluate
+ * @param  {float} point  - temperature to evaluate
  * @return {object}      - RGB values of color
  */
-function mapTemp(low, high, eval) { // used by dataPoint to build temp->color
+function mapTemp(low, high, point) { // used by dataPoint to build temp->color
 
 	var tempLow = Math.log(low);
 	var tempHigh = Math.log(high);
 	var tempMid = (tempHigh - tempLow) / 2 + tempLow;
-	var tempEval = Math.log(eval);
+	var tempPoint = Math.log(point);
 	var rValue, gValue, bValue;
 
 	var r, g, b;
 
-	tempValue = Math.map(tempEval, tempLow, tempHigh, 0, 1);
+	tempValue = Math.map(tempPoint, tempLow, tempHigh, 0, 1);
 
 
 	switch (true) {

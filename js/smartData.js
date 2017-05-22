@@ -1,6 +1,6 @@
 // ----------------------------------------------------------------------------------------------- DATA
 
-var dataPoints = new Array();
+var dataPoints = [];
 
 /**
  * Creates datapoint object from data
