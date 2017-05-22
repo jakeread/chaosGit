@@ -6,6 +6,14 @@ var load_pattern_btn = document.getElementById('load_pattern_btn');
 var stop_btn = document.getElementById('stop_btn');
 var dynamic_scroll = document.getElementById('recentLines');
 
+document.getElementById('load_btn').onclick = function() {
+	document.getElementById('pattern_file_input').click();
+}
+
+document.getElementById('load_scan_btn').onclick = function() {
+	document.getElementById('scan_file_input').click();
+}
+
 // ----------------------------------------------------------------------------------------------- COMMUNICATION
 
 var socket = new WebSocket("ws://localhost:8081");
@@ -144,4 +152,35 @@ function call_start() {
 	handleCommands("start scan");
 }
 
+function loadPatternFile(e) {
+	var file = e.target.files[0];
+	if (!file) {
+		return;
+	}
+	var reader = new FileReader();
+	reader.onload = function(e) {
+		var contents= e.target.result;
+		scanPattern = JSON.parse(contents);
+		recentLines.add("Scan Pattern Loaded")
+	};
+	reader.readAsText(file);
+}
+
+function loadScanFile(e) {
+	var file = e.target.files[0];
+	if (!file) {
+		return;
+	}
+	var reader = new FileReader();
+	reader.onload = function(e) {
+		var contents = e.target.result;
+		dataPoints = JSON.parse(contents);
+		recentLines.add("Scan Loaded");
+		threeNewPoints();
+	};
+	reader.readAsText(file);
+}
+
+
 start_btn.onclick = call_start;
+
