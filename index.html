@@ -32,7 +32,6 @@
 				overflow: auto;
 				width:280px;
 			}
-
 			#logo {
 				float: left;
 				width:150px;
@@ -57,7 +56,6 @@
 				padding: 0px;
 				border-bottom: 1px solid #ccc;
 			}
-
 			.button-small {
 				font-size: 12.5px;
 				padding: 3px;
@@ -66,7 +64,6 @@
 				top: 50%;
 				left: 50%;
 			}
-
 			input {
 				border:none;
 				background-color:#ccc;
@@ -83,14 +80,13 @@
 			}
 		</style>
 	</head>
-
 	<body>
 		<div id="wrapper">
 			<div id="sidebar">
 				<div id="sidebar_header">
 					<div id="logo">
 						<img src="logo.png" style="width:150px; height:150px;">
-									</div>
+					</div>
 					<div id="buttons">
 						<button class = "button-small pure-button" id ="load_btn">Load Pattern</button>
 						<input type="file" id="pattern_file_input" onchange="loadPatternFile(event)"/>
@@ -101,7 +97,6 @@
 						<input type="file" id="scan_file_input" onchange="loadScanFile(event)"/>
 					</div>
 				</div>
-
 				<p id="recentLines"></p>
 				<input type="text" id="commandIn" value="">
 				<!--<button onclick="commandLineInput()">Line</button>-->
@@ -111,36 +106,26 @@
 		<script src="js/three.js"></script>
 		<script src="js/controls/TrackballControls.js"></script>
 		<script src="js/Detector.js"></script>
-
 		<script type="x-shader/x-vertex" id="vertexshader">
-
-		    attribute float alpha;
-		    varying float vAlpha;
-
-		    attribute vec3 customColor;
-		    varying vec3 vColor;
-
-		    void main() {
- 		    	vAlpha = alpha;
- 		    	vColor = customColor;
-
-    		    vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-        		gl_PointSize = 8.0;
-        		gl_Position = projectionMatrix * mvPosition;
-    		}
+		attribute float alpha;
+		varying float vAlpha;
+		attribute vec3 customColor;
+		varying vec3 vColor;
+		void main() {
+			vAlpha = alpha;
+			vColor = customColor;
+		vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+		gl_PointSize = 8.0;
+		gl_Position = projectionMatrix * mvPosition;
+		}
 		</script>
-
 		<script type="x-shader/x-fragment" id="fragmentshader">
-
-    		varying vec3 vColor;
-
-    		varying float vAlpha;
-
-    		void main() {
-        		gl_FragColor = vec4( vColor , vAlpha );
-    		}
+		varying vec3 vColor;
+		varying float vAlpha;
+		void main() {
+		gl_FragColor = vec4( vColor , vAlpha );
+		}
 		</script>
-
 		<script src="js/smartGraphics.js"></script>
 		<script src="js/smartScanning.js"></script>
 		<script src="js/smartData.js"></script>
