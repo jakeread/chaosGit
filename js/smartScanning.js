@@ -84,7 +84,7 @@ var scan = {
 	init: function () {
 		this.isRunning = true;
 		_stop = false;
-		recentLines.add("THR3: Scanning...");
+		recentLines.add("Scanning...");
 		startTime = new Date().getTime();
 		this.doNextPoint();
 	},
@@ -96,7 +96,7 @@ var scan = {
 		if (this.isRunning) {
 			if (!_stop) {
 				while (this.doBoundsCheck(scanPattern[this.scanPosition].a, scanPattern[this.scanPosition].b)) {
-					recentLines.add("THR3: Throwing point: due to OOB");
+					recentLines.add("Ignoring point out of bounds");
 					console.log("throwing point" + this.scanPosition + "due to OOB");
 					this.scanPosition++;
 				}
@@ -124,7 +124,7 @@ var scan = {
 	 */
 	finish: function () {
 		socket.send("A0B0");
-		recentLines.add("THR3: Scan is complete ");
+		recentLines.add("Scan is complete ");
 		recentLines.add("Scan took " + (endTime - startTime) / 1000 + " seconds to complete");
 	},
 

@@ -39,11 +39,11 @@ function dataPoint(data) { // writes points on receipt of M-messages
  */
 function saveData() {
 	if (dataPoints.length < 1) {
-		recentLines.add("THR3: dataPoints array is of length 0");
+		recentLines.add("No data to save");
 	} else {
-		recentLines.add("THR3: saving data...");
+		recentLines.add("Saving data...");
 		var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataPoints));
-		recentLines.add("THR3: " + '<a href="data:' + data + '" download="data.json">Download JSON</a>'); // auto-name with date
+		recentLines.add('<a href="data:' + data + '" download="data.json">Download JSON</a>'); // auto-name with date
 	}
 }
 

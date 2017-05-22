@@ -40,9 +40,9 @@ function newData(result) {
 		console.log("js newData:" + theData);
 	}
 	if (theData.indexOf("Unknown Code in Command") === 0) {
-		recentLines.add("SMART: Unknown Command");
+		recentLines.add("Unknown Command");
 	} else {
-		recentLines.add("SMART: " + theData);
+		recentLines.add(theData);
 	}
 	if (theData[0] == "S") {
 		scan.doNextPoint();
@@ -85,6 +85,8 @@ function handleCommands(input) {
 		case "start scan":
 				scan.init();
 			break;
+		case "pause scan":
+				_stop = true;
 		}
 	}
 }
