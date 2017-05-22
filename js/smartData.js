@@ -2,6 +2,11 @@
 
 var dataPoints = new Array();
 
+/**
+ * Creates datapoint object from data
+ * @param  data - data for datapoint
+ * @return       datapoint object
+ */
 function dataPoint(data) { // writes points on receipt of M-messages
 
 	var a = parseFloat(data.slice(data.indexOf("A") + 1, data.indexOf("B")));
@@ -29,9 +34,12 @@ function dataPoint(data) { // writes points on receipt of M-messages
 	return theDataPoint;
 }
 
+/**
+ * Saves data
+ */
 function saveData() {
 	if (dataPoints.length < 1) {
-		recentLines.add("THR3: dataPoints array is of length 0")
+		recentLines.add("THR3: dataPoints array is of length 0");
 	} else {
 		recentLines.add("THR3: saving data...");
 		var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(dataPoints));
@@ -39,6 +47,10 @@ function saveData() {
 	}
 }
 
+/**
+ * Load scan data from local file
+ * @param  {string} path - file path to data
+ */
 function loadData(path) {
 	var response;
 	var xobj = new XMLHttpRequest();
@@ -46,11 +58,11 @@ function loadData(path) {
 	var filePath = './completedScans/' + path;
 
 	xobj.open('GET', filePath, true);
-	xobj.onreadystatechange = function() {
+	xobj.onreadystatechange = function () {
 		if (xobj.readyState == 4) {
 			dataPoints = JSON.parse(xobj.responseText);
 			threeNewPoints();
 		}
-	}
+	};
 	xobj.send(null);
 }

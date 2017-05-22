@@ -14,10 +14,12 @@ initThree();
 initThreePointCloud();
 animate();
 
+/**
+ * Primary three js function
+ */
 function initThree() {
 
 	// camera
-
 	camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
 	camera.position.x = 5;
 	camera.position.y = -5;
@@ -42,7 +44,6 @@ function initThree() {
 	controls.addEventListener('change', render);
 
 	// werld
-
 	scene = new THREE.Scene();
 	scene.background = new THREE.Color(0xdcdcdc);
 
@@ -51,7 +52,6 @@ function initThree() {
 	scene.add(origin);
 
 	// renderer
-
 	renderer = new THREE.WebGLRenderer({
 		antialias: true
 	});
@@ -66,8 +66,10 @@ function initThree() {
 
 }
 
+/**
+ * Resize and render visualization when window is resized
+ */
 function onWindowResize() {
-
 	camera.aspect = ((window.innerWidth - 315) / (window.innerHeight - 25));
 	camera.updateProjectionMatrix();
 
@@ -78,11 +80,17 @@ function onWindowResize() {
 	render();
 }
 
+/**
+ * Helper function for animation
+ */
 function animate() {
 	requestAnimationFrame(animate);
 	controls.update();
 }
 
+/**
+ * Helper function to re-render visualization
+ */
 function render() {
 	renderer.render(scene, camera);
 }
@@ -90,6 +98,9 @@ function render() {
 var maxmax = 45;
 var minmin = 10;
 
+/**
+ * Update visualization by adding additional points
+ */
 function threeNewPoints() {
 
 	var alphas = cloud.geometry.attributes.alpha;
@@ -111,7 +122,6 @@ function threeNewPoints() {
 	}
 
 	for (var i = 0; i < dataPoints.length; i++) {
-
 		alphas.array[i] = 1; // set all points in cloud w/ dataPoint equiv to visible
 		positions.array[i * 3] = dataPoints[i].pos.x;
 		positions.array[i * 3 + 1] = dataPoints[i].pos.y;
@@ -135,9 +145,11 @@ function threeNewPoints() {
 	customColors.needsUpdate = true;
 
 	render();
-
 }
 
+/**
+ * Create three js point cloud
+ */
 function initThreePointCloud() {
 
 	// we'll make a lot, only display those we have data for
@@ -168,7 +180,6 @@ function initThreePointCloud() {
 	pointCloudGeometry.addAttribute('customColor', new THREE.BufferAttribute(colors, 3));
 
 	// shader / material
-
 	uniforms = {
 		color: {
 			value: new THREE.Color(0xffffff)
@@ -176,7 +187,6 @@ function initThreePointCloud() {
 	};
 
 	var shaderMaterial = new THREE.ShaderMaterial({
-
 		uniforms: uniforms,
 		vertexShader: document.getElementById('vertexshader').textContent,
 		fragmentShader: document.getElementById('fragmentshader').textContent,
@@ -190,9 +200,20 @@ function initThreePointCloud() {
 	cloud = new THREE.Points(pointCloudGeometry, shaderMaterial);
 
 	scene.add(cloud);
-
 }
 
+/**
+ * Returns a color value based on the temperature of a given point. Used by
+ * dataPoint to get colors for points
+ *
+ * Algorithm converts each value to a log scale and uses functions of the form
+ * f(x) = +/- 4.16(x +/- C) to map log values to individual r, g and b values.
+ *
+ * @param  {float} low   - lowest temperature recorded.
+ * @param  {float} high  - highest temperature recorded
+ * @param  {float} eval  - temperature to evaluate
+ * @return {object}      - RGB values of color
+ */
 function mapTemp(low, high, eval) { // used by dataPoint to build temp->color
 
 	var tempLow = Math.log(low);
@@ -200,54 +221,53 @@ function mapTemp(low, high, eval) { // used by dataPoint to build temp->color
 	var tempMid = (tempHigh - tempLow) / 2 + tempLow;
 	var tempEval = Math.log(eval);
 	var rValue, gValue, bValue;
-	9
-	var r, g, b; // for colours
+
+	var r, g, b;
 
 	tempValue = Math.map(tempEval, tempLow, tempHigh, 0, 1);
 
 
 	switch (true) {
-		case (0 < tempValue && tempValue <= 0.12):
-			b = 4.16 * (tempValue + 0.12);
-			break;
-		case (0.12 < tempValue && tempValue <= 0.38):
-			b = 1;
-			break;
-		case (0.36 < tempValue && tempValue <= 0.62):
-			b = -4.16 * (tempValue - 0.62);
-			break;
-		default:
-			b = 0;
+	case (0 < tempValue && tempValue <= 0.12):
+		b = 4.16 * (tempValue + 0.12);
+		break;
+	case (0.12 < tempValue && tempValue <= 0.38):
+		b = 1;
+		break;
+	case (0.36 < tempValue && tempValue <= 0.62):
+		b = -4.16 * (tempValue - 0.62);
+		break;
+	default:
+		b = 0;
 	}
 
 	switch (true) {
-		case (0.14 < tempValue && tempValue <= 0.38):
-			g = 4.16 * (tempValue - 0.14);
-			break;
-		case (0.38 < tempValue && tempValue <= 0.62):
-			g = 1;
-			break;
-		case (0.62 < tempValue && tempValue <= 0.86):
-			g = -4.16 * (tempValue - 0.88);
-			break;
-		default:
-			g = 0;
+	case (0.14 < tempValue && tempValue <= 0.38):
+		g = 4.16 * (tempValue - 0.14);
+		break;
+	case (0.38 < tempValue && tempValue <= 0.62):
+		g = 1;
+		break;
+	case (0.62 < tempValue && tempValue <= 0.86):
+		g = -4.16 * (tempValue - 0.88);
+		break;
+	default:
+		g = 0;
 	}
 
 	switch (true) {
-		case (0.38 < tempValue && tempValue <= 0.62):
-			r = 4.16 * (tempValue - 0.38);
-			break;
-		case (0.62 < tempValue && tempValue <= 0.88):
-			r = 1;
-			break;
-		case (0.86 < tempValue && tempValue <= 1):
-			r = -4.16 * (tempValue - 1.1);
-			break;
-		default:
-			r = 0;
+	case (0.38 < tempValue && tempValue <= 0.62):
+		r = 4.16 * (tempValue - 0.38);
+		break;
+	case (0.62 < tempValue && tempValue <= 0.88):
+		r = 1;
+		break;
+	case (0.86 < tempValue && tempValue <= 1):
+		r = -4.16 * (tempValue - 1.1);
+		break;
+	default:
+		r = 0;
 	}
-
 
 	var tempColour = {
 		"r": r,

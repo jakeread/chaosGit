@@ -6,11 +6,11 @@ var load_pattern_btn = document.getElementById('load_pattern_btn');
 var stop_btn = document.getElementById('stop_btn');
 var dynamic_scroll = document.getElementById('recentLines');
 
-document.getElementById('load_btn').onclick = function() {
+document.getElementById('load_btn').onclick = function () {
 	document.getElementById('pattern_file_input').click();
 }
 
-document.getElementById('load_scan_btn').onclick = function() {
+document.getElementById('load_scan_btn').onclick = function () {
 	document.getElementById('scan_file_input').click();
 }
 
@@ -30,6 +30,10 @@ function closeSocket() {
 	console.log("Socket Closed")
 }
 
+/**
+ * Reads and handles new data from pipe. Pushes new data to
+ * dataPoints array and updates three.js display.
+ */
 function newData(result) {
 	var theData = result.data;
 	if (debug) {
@@ -54,7 +58,10 @@ function newData(result) {
 }
 
 // ----------------------------------------------------------------------------------------------- TEXT TERMINAL
-
+/**
+ * Handles incoming commands from the browser UI
+ * @param  {string} input - command line input from browser UI
+ */
 function handleCommands(input) {
 	if (debug) {
 		console.log("js handleCommands: " + input);
@@ -71,12 +78,12 @@ function handleCommands(input) {
 		switch (input) {
 			default: socket.send(input);
 			break;
-			case "save":
-					saveData(dataPoints);
-				break;
-			case "start scan":
-					scan.init();
-				break;
+		case "save":
+				saveData(dataPoints);
+			break;
+		case "start scan":
+				scan.init();
+			break;
 		}
 	}
 }
@@ -90,6 +97,9 @@ function keyPressed(event) {
 	}
 }
 
+/**
+ * Handles input from browser UI command line. Calls handleCommands()
+ */
 function commandLineInput() {
 	var input = document.getElementById("commandIn").value;
 	if (debug) {
@@ -100,12 +110,15 @@ function commandLineInput() {
 	document.getElementById("commandIn").value = ""; // clear input
 }
 
+/**
+ * recentLines object displays command line history in browser UI
+ */
 var recentLines = { // lines display obj
 	lines: new Array(),
 
 	domLines: document.getElementById("recentLines"),
 
-	add: function(newLine) {
+	add: function (newLine) {
 		if (this.lines.push(newLine) > 50) {
 			this.lines.splice(0, 1);
 		}
@@ -130,15 +143,24 @@ function updateScroll() {
 
 // ----------------------------------------------------------------------------------------------- UTILS
 
-Math.radians = function(degrees) {
+Math.radians = function (degrees) {
 	return degrees * Math.PI / 180;
 };
 
-Math.degrees = function(radians) {
+Math.degrees = function (radians) {
 	return radians * 180 / Math.PI;
 };
 
-Math.map = function(value, inLow, inHigh, outLow, outHigh) {
+/**
+ * Helper function to map value onto specified range
+ * @param   value   value to map
+ * @param   inLow   minimum of initial range
+ * @param   inHigh  maximum of initial range
+ * @param   outLow  minimum of range to map onto
+ * @param   outHigh maximum of range to map onto
+ * @return          mapped value
+ */
+Math.map = function (value, inLow, inHigh, outLow, outHigh) {
 	if (value <= inLow) {
 		return outLow;
 	} else if (value >= inHigh) {
@@ -159,27 +181,35 @@ function call_stop() {
 	_stop = true;
 }
 
+/**
+ * Load scan pattern from local file
+ * @param  {event} e - event from file input
+ */
 function loadPatternFile(e) {
 	var file = e.target.files[0];
 	if (!file) {
 		return;
 	}
 	var reader = new FileReader();
-	reader.onload = function(e) {
-		var contents= e.target.result;
+	reader.onload = function (e) {
+		var contents = e.target.result;
 		scanPattern = JSON.parse(contents);
-		recentLines.add("Scan Pattern Loaded")
+		recentLines.add("Scan Pattern Loaded");
 	};
 	reader.readAsText(file);
 }
 
+/**
+ * Load scan from local file for visualization
+ * @param  {event} e - event from file input
+ */
 function loadScanFile(e) {
 	var file = e.target.files[0];
 	if (!file) {
 		return;
 	}
 	var reader = new FileReader();
-	reader.onload = function(e) {
+	reader.onload = function (e) {
 		var contents = e.target.result;
 		dataPoints = JSON.parse(contents);
 		recentLines.add("Scan Loaded");
@@ -188,7 +218,5 @@ function loadScanFile(e) {
 	reader.readAsText(file);
 }
 
-
 start_btn.onclick = call_start;
 stop_btn.onclick = call_stop;
-

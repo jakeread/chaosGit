@@ -5,6 +5,10 @@ var startTime;
 var endTime;
 var _stop;
 
+/**
+ * Load scan pattern from local file
+ * @param  {string} path - filepath to scan pattern file
+ */
 function loadPattern(path) {
 	var response;
 	var xobj = new XMLHttpRequest();
@@ -12,7 +16,7 @@ function loadPattern(path) {
 	var filePath = './scanParams/' + path;
 
 	xobj.open('GET', filePath, true);
-	xobj.onreadystatechange = function() {
+	xobj.onreadystatechange = function () {
 		if (xobj.readyState == 4) {
 			scanPattern = JSON.parse(xobj.responseText);
 			sortPattern();
@@ -21,6 +25,9 @@ function loadPattern(path) {
 	xobj.send(null);
 }
 
+/**
+ * Sort scan pattern points to find most efficient scanning pattern
+ */
 function sortPattern() {
 	var newScanPattern = [];
 	var threshold = 5; // width of path
@@ -38,11 +45,15 @@ function sortPattern() {
 	scanPattern = newScanPattern;
 }
 
+/**
+ * Load default scan pattern
+ * Change path to file if different default is desired
+ */
 function loadJSON(callback) {
 	var xobj = new XMLHttpRequest();
 	xobj.overrideMimeType("application/json");
 	xobj.open('GET', './scanParams/6v-scanPoints.json', true);
-	xobj.onreadystatechange = function() {
+	xobj.onreadystatechange = function () {
 		if (xobj.readyState == 4) {
 			callback(xobj.responseText);
 		}
@@ -50,26 +61,27 @@ function loadJSON(callback) {
 	xobj.send(null);
 }
 
-loadJSON(function(response) {
+/**
+ * Helper function for loading JSON
+ */
+loadJSON(function (response) {
 	scanPattern = JSON.parse(response);
 	console.log("scanPattern Loaded, length: " + scanPattern.length);
 	sortPattern();
 	console.log("scanPattern sorted");
 });
 
+/**
+ * Scan object
+ */
 var scan = {
-
 	"isRunning": false,
-
 	"scanPosition": 0, // index of current point in scanPattern
 
-	prepare: function() {
-		console.log("load scan...");
-		recentLines.add("THR3: Perparing Scan ...");
-		console.log(scanPattern);
-	},
-
-	init: function() {
+	/**
+	 * Initialize scanning and set flags
+	 */
+	init: function () {
 		this.isRunning = true;
 		_stop = false;
 		recentLines.add("THR3: Scanning...");
@@ -77,7 +89,10 @@ var scan = {
 		this.doNextPoint();
 	},
 
-	doNextPoint: function() {
+	/**
+	 * Scan the next point in the scan pattern
+	 */
+	doNextPoint: function () {
 		if (this.isRunning) {
 			if (!_stop) {
 				while (this.doBoundsCheck(scanPattern[this.scanPosition].a, scanPattern[this.scanPosition].b)) {
@@ -104,13 +119,22 @@ var scan = {
 		}
 	},
 
-	finish: function() {
+	/**
+	 * Return to home and print scan time to UI console
+	 */
+	finish: function () {
 		socket.send("A0B0");
 		recentLines.add("THR3: Scan is complete ")
 		recentLines.add("Scan took " + (endTime - startTime) / 1000 + " seconds to complete");
 	},
 
-	doBoundsCheck: function(a, b) {
+	/**
+	 * Check that point is within sensor bounds
+	 * @param  {float} a - angle of A axis
+	 * @param  {float} b - angle of B axis
+	 * @return {bool}   whether point is within bounds
+	 */
+	doBoundsCheck: function (a, b) {
 		var aBounds = [-5, 365];
 		var bBounds = [-95, 95];
 		if (a < aBounds[0] || a > aBounds[1] || b < bBounds[0] || b > bBounds[1]) {
