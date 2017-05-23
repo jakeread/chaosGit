@@ -27,9 +27,10 @@ function initThree() {
 	camera.lookAt(0, 0, 0);
 	camera.up.set(0, 0, 1);
 
-	controls = new THREE.TrackballControls(camera, container);
-
-	controls.rotateSpeed = 2.0;
+	controls = new THREE.OrbitControls(camera, container);
+	//controls = new THREE.TrackballControls(camera, container);
+	//controls = new THREE.FirstPersonControls(camera, container);
+	/*controls.rotateSpeed = 2.0;
 	controls.zoomSpeed = 2.0;
 	controls.panSpeed = 1.2;
 
@@ -40,7 +41,7 @@ function initThree() {
 	controls.dynamicDampingFactor = 0.3;
 
 	controls.keys = [65, 83, 68];
-
+*/
 	controls.addEventListener('change', render);
 
 	// werld
