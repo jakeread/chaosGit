@@ -92,7 +92,7 @@ function handleCommands(input) {
 	}
 }
 
-document.getElementById('commandIn').addEventListener('keydown', keyPressed); // referencing HTML element we wrote w/ this ID
+document.getElementById('commandIn').addEventListener('keydown', keyPressed);
 
 function keyPressed(event) {
 	if (event.keyCode == 13) {
@@ -186,10 +186,15 @@ function call_pause() {
 }
 
 /**
- * Set stop flag to true
+ * Set stop flag to true and reset scan position
  */
 function call_stop() {
 	_stop = true;
+	scan.scanPosition = 0;
+	dataPoints = [];
+	threeNewPoints();
+	socket.send("A0B0");
+	recentLines.add("Scan Stopped");
 }
 
 /**
