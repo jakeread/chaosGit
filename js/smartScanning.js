@@ -84,6 +84,8 @@ var scan = {
 	 * Initialize scanning and set flags
 	 */
 	init: function () {
+		dataPoints = [];
+		threeNewPoints();
 		this.isRunning = true;
 		_pause = false;
 		_stop = false;

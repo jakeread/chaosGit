@@ -45,7 +45,7 @@
 				width:140px;
 				margin: 0px;
 				padding: 0px;
-				padding-top: 18px;
+				padding-top: 20px;
 				text-align: center;
 				font-size: 0;
 			}
@@ -71,6 +71,16 @@
 			}
 			#control_button_panel {
 				text-align: center;
+				margin:2px;
+			}
+			#open_save_panel {
+				text-align: center;
+				margin:2px;
+			}
+			.open_save_buttons {
+				width: 62px;
+				margin: 2px;
+				font-size: 12px;
 			}
 			input {
 				border:none;
@@ -112,16 +122,21 @@
 							<i class = "fa fa-stop icon"></i>
 							</button>
 						</div>
-						<button class = "button-small pure-button" id ="load_scan_btn">
-						<i class = "fa fa-folder-open icon"></i>
-						Open Scan
-						</button>
+						<div id="open_save_panel">
+							<button class = "open_save_buttons pure-button" id ="load_scan_btn">
+							<i class = "fa fa-folder-open icon"></i>
+							Open
+							</button>
+							<button class = "open_save_buttons pure-button" id ="save_btn">
+							<i class = "fa fa-floppy-o"></i>
+							Save
+							</button>
+						</div>
 						<input type="file" id="scan_file_input" onchange="loadScanFile(event)"/>
 					</div>
 				</div>
 				<p id="recentLines"></p>
 				<input type="text" id="commandIn" value="">
-				<!--<button onclick="commandLineInput()">Line</button>-->
 			</div>
 			<div id="container"></div>
 		</div>

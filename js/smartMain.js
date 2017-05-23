@@ -1,10 +1,7 @@
 var debug = false;
 
 var start_btn = document.getElementById('start_btn');
-var load_scan_btn = document.getElementById('load_scan_btn');
-var load_pattern_btn = document.getElementById('load_pattern_btn');
 var stop_btn = document.getElementById('stop_btn');
-var dynamic_scroll = document.getElementById('recentLines');
 
 document.getElementById('load_btn').onclick = function () {
 	document.getElementById('pattern_file_input').click();
@@ -44,10 +41,10 @@ function newData(result) {
 	} else {
 		recentLines.add(theData);
 	}
-	if (theData[0] == "S") {
+	if (theData[0] === "S") {
 		scan.doNextPoint();
 	}
-	if (theData[0] == "M" || theData[1] == "M") { // ---------------------------------------------- On dataPoint Received
+	if (theData[0] === "M" || theData[1] === "M") { // ---------------------------------------------- On dataPoint Received
 		if (debug) {
 			console.log("in M-message");
 		}
@@ -77,20 +74,20 @@ function handleCommands(input) {
 		recentLines.add("Pattern loaded");
 	} else {
 		switch (input) {
-			default: socket.send(input);
-			break;
 		case "save":
-				saveData(dataPoints);
+			saveData(dataPoints);
 			break;
 		case "start scan":
-				scan.init();
+			scan.init();
 			break;
 		case "pause scan":
-				_pause = true;
+			_pause = true;
 			break;
 		case "stop scan":
-				_stop = true;
+			_stop = true;
 			break;
+		default:
+			socket.send(input);
 		}
 	}
 }
@@ -130,7 +127,7 @@ var recentLines = { // lines display obj
 			this.lines.splice(0, 1);
 		}
 		this.domLines.innerHTML = ""; // clear it
-		for (i = 0; i < this.lines.length; i++) {
+		for (var i = 0; i < this.lines.length; i++) {
 			this.domLines.innerHTML += this.lines[i] + "</br>"; // re-write
 		}
 		if (debug) {
@@ -196,6 +193,13 @@ function call_stop() {
 }
 
 /**
+ * Save file
+ */
+function call_save() {
+	saveData();
+}
+
+/**
  * Load scan pattern from local file
  * @param  {event} e - event from file input
  */
@@ -235,3 +239,4 @@ function loadScanFile(e) {
 start_btn.onclick = call_start;
 pause_btn.onclick = call_pause;
 stop_btn.onclick = call_stop;
+save_btn.onclick = call_save;

@@ -25,7 +25,7 @@ function dataPoint(data) { // writes points on receipt of M-messages
 		"b": b,
 		"distance": distance,
 		"radiant": radiant,
-		"pos": pos,
+		"pos": pos
 	};
 
 	if (debug) {
