@@ -15,9 +15,9 @@ More information available here: https://smart.princeton.edu/
 - Clone this repo
 
 #### Setup:
+- `cd /<path-to-this-repo>`
 - `npm install serialport`
 - `npm install --save ws`
-- `cd /<path-to-this-repo>/nodeCom`
 - `node main.js`
 - run `node lstprts.js` to list all usb ports. Select the correct name and update `pipe.js` port name variable accordingly.
 
