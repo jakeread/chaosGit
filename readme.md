@@ -6,7 +6,10 @@ More information available here: https://smart.princeton.edu/
 - Available here: https://www.pjrc.com/teensy/td_download.html
 
 **Node.js** for `pipe.js` & `lstprts.js`
-- Available here: https://nodejs.org/en/download/
+- On Linux/MacOS: 
+    - Install Node Version Manager (NVM) by running `curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash`
+    - Install `nvm install node`
+- Also available here: https://nodejs.org/en/download/
 
 #### Setup:
 - `npm install serialport`
