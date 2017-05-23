@@ -2,7 +2,7 @@
 
 if (!Detector.webgl) Detector.addGetWebGLMessage();
 
-var container;
+var container = document.getElementById('container');
 var camera, controls, scene, renderer, cloud, uniforms;
 
 var width = window.innerWidth - 315;
@@ -44,13 +44,11 @@ function initThree() {
 	});
 	renderer.setSize(width, height);
 
-	container = document.getElementById('container');
 	container.appendChild(renderer.domElement);
 
 	window.addEventListener('resize', onWindowResize, false);
 
 	render();
-
 }
 
 /**
