@@ -27,7 +27,7 @@ function parseLineIn(data) {
 
 var serialport = require('serialport'),
 	SerialPort = serialport,
-	portname = '/dev/cu.usbmodem2601641'; //'COM9'; // to do direct
+	portname = '/dev/ttyACM0'; //'COM9'; // to do direct
 //process.argv[2]; // to read serial port name from command line
 
 var myPort = new SerialPort(portname, {
