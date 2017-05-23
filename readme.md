@@ -11,6 +11,9 @@ More information available here: https://smart.princeton.edu/
     - Install `nvm install node`
 - Also available here: https://nodejs.org/en/download/
 
+**S.M.A.R.T Sensor**
+- Clone this repo
+
 #### Setup:
 - `npm install serialport`
 - `npm install --save ws`
