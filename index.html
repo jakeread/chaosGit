@@ -3,8 +3,9 @@
 	<head>
 		<link rel="stylesheet" href="https://unpkg.com/purecss@0.6.2/build/pure-min.css" integrity="sha384-UQiGfs9ICog+LwheBSRCt1o5cbyKIHbwjWscjemyBMT9YCUMZffs6UqUTd0hObXD" crossorigin="anonymous">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<link rel=icon href=./logo.png>
 		<meta charset=utf-8>
-		<title>CHAOS Lab SMART Sensor Control</title>
+		<title>SMART Sensor Control</title>
 		<style type = text/css>
 			html, body{height: 100%}
 			body { margin: 0; font-family: "Helvetica"; }
@@ -45,7 +46,7 @@
 				width:140px;
 				margin: 0px;
 				padding: 0px;
-				padding-top: 20px;
+				padding-top: 6px;
 				text-align: center;
 				font-size: 0;
 			}
@@ -67,7 +68,8 @@
 			.control_buttons {
 				width: 40px;
 				font-size: 14px;
-				margin: 2px;
+				margin-left: 2px;
+				margin-right:2px;
 			}
 			#control_button_panel {
 				text-align: center;
@@ -81,6 +83,7 @@
 				width: 62px;
 				margin: 2px;
 				font-size: 12px;
+				padding-left: 9px;
 			}
 			input {
 				border:none;
@@ -123,6 +126,14 @@
 							</button>
 						</div>
 						<div id="open_save_panel">
+							<button class = "open_save_buttons pure-button" id = "home_btn">
+							<i class = "fa fa-home icon"></i>
+							Home
+							</button>
+							<button class="open_save_buttons pure-button" id = "laser_btn">
+							<i class = "fa fa-lightbulb-o icon"></i>
+							Laser
+							</button>
 							<button class = "open_save_buttons pure-button" id ="load_scan_btn">
 							<i class = "fa fa-folder-open icon"></i>
 							Open

@@ -198,6 +198,20 @@ function call_stop() {
 }
 
 /**
+ * Send home command to sensor
+ */
+function call_home() {
+	handleCommands("H");
+}
+
+/**
+ * Toggle laser
+ */
+function call_laser() {
+	handleCommands("L");
+}
+
+/**
  * Save file
  */
 function call_save() {
@@ -244,4 +258,6 @@ function loadScanFile(e) {
 start_btn.onclick = call_start;
 pause_btn.onclick = call_pause;
 stop_btn.onclick = call_stop;
+home_btn.onload = call_home;
+laser_btn.onclick = call_laser;
 save_btn.onclick = call_save;
