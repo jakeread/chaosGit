@@ -201,6 +201,7 @@ function call_stop() {
  * Send home command to sensor
  */
 function call_home() {
+	console.log("calling home");
 	handleCommands("H");
 }
 
@@ -258,6 +259,6 @@ function loadScanFile(e) {
 start_btn.onclick = call_start;
 pause_btn.onclick = call_pause;
 stop_btn.onclick = call_stop;
-home_btn.onload = call_home;
+home_btn.onclick = call_home;
 laser_btn.onclick = call_laser;
 save_btn.onclick = call_save;
