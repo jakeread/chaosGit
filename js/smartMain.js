@@ -1,4 +1,4 @@
-var debug = false;
+var debug = true;
 
 var start_btn = document.getElementById('start_btn');
 var stop_btn = document.getElementById('stop_btn');
@@ -13,7 +13,7 @@ document.getElementById('load_scan_btn').onclick = function () {
 
 // ----------------------------------------------------------------------------------------------- COMMUNICATION
 
-var socket = new WebSocket("ws://localhost:8081");
+var socket = new WebSocket("ws://192.168.1.1:8081");
 
 socket.onopen = openSocket;
 socket.onclose = closeSocket;
@@ -87,7 +87,9 @@ function handleCommands(input) {
 			_stop = true;
 			break;
 		default:
+			console.log("about to send input to socket" + input);
 			socket.send(input);
+			console.log("sent input to socket" + input);
 		}
 	}
 }
