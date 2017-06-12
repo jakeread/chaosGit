@@ -219,7 +219,7 @@ function mapTemp(low, high, point) { // used by dataPoint to build temp->color
 	case (0.12 < tempValue && tempValue <= 0.38):
 		b = 1;
 		break;
-	case (0.36 < tempValue && tempValue <= 0.62):
+	case (0.38 < tempValue && tempValue <= 0.62):
 		b = -4.16 * (tempValue - 0.62);
 		break;
 	default:
